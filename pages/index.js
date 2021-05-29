@@ -4,13 +4,12 @@ import AppLayout from "../components/AppLayout";
 
 const Home = () => {
   return (
-    <div>
+    <AppLayout>
       <Head>
         <title>Home | NodeBird</title>
       </Head>
-      <AppLayout />
-      Hello, Next!!
-    </div>
+      <h2>Hello NodeBird</h2>
+    </AppLayout>
   );
 };
 export default Home;
