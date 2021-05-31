@@ -1,0 +1,15 @@
+.form {
+  margin: 10px 0 20px;
+}
+
+.btnContainer {
+  float: right;
+}
+
+.imgContainer {
+  display: inline-block;
+}
+
+.img {
+  width: 200px;
+}

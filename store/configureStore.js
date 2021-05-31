@@ -1,12 +1,17 @@
+import { applyMiddleware, createStore, compose } from "redux";
 import { createWrapper } from "next-redux-wrapper";
-import { createStore } from "redux";
+import { composeWithDevTools } from "redux-devtools-extension";
+
 import reducer from "../reducers";
 
-// 비동기는 3가지다.
-// 첫째 데이터 요청 , 둘째 성공 , 셋째 실패
-
-const configureStore = () => {
-  const store = createStore(reducer);
+const configureStore = (context) => {
+  console.log(context);
+  const middlewares = [];
+  const enhancer =
+    process.env.NODE_ENV === "production"
+      ? compose(applyMiddleware(...middlewares))
+      : composeWithDevTools(applyMiddleware(...middlewares));
+  const store = createStore(reducer, enhancer);
   return store;
 };
 
