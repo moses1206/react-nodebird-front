@@ -1,0 +1,63 @@
+.overlay {
+  position: fixed;
+  z-index: 5000;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.header {
+  height: 44px;
+  background: white;
+  position: relative;
+  padding: 0;
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: 17px;
+  color: #333;
+  line-height: 44px;
+}
+
+.closebtn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 15px;
+  line-height: 14px;
+  cursor: pointer;
+}
+
+.slickWrapper {
+  height: calc(100%-44px);
+  background: #090909;
+}
+
+.imgWrapper {
+  padding: 32px;
+  text-align: center;
+}
+
+.img {
+  margin: 0 auto;
+  max-height: 750px;
+}
+
+.indicator {
+  text-align: center;
+}
+
+.indicatorWrapper {
+  width: 75px;
+  height: 30px;
+  line-height: 30px;
+  border-right: 15px;
+  background: #313131;
+  display: inline-block;
+  text-align: center;
+  color: white;
+  font-style: 15px;
+}

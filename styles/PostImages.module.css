@@ -1,0 +1,11 @@
+.showplus {
+  display: inline-block;
+  width: 50%;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.image {
+  width: 50%;
+  display: inline-block;
+}
