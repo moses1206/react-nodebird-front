@@ -1,0 +1,65 @@
+import { all, delay, fork, put, takeLatest } from "redux-saga/effects";
+import axios from "axios";
+
+function logInAPI(data) {
+  return axios.post("/api/login", data);
+}
+
+function* logIn(action) {
+  // Call은 데이터를 받아올때까지 기다리는 것이고 fork 는 데이터를 받아오면서 다른것도 동시에 실행된다.
+  //   요청의 성공은 result.data , 실패는 err.response.data에 담겨져있따.
+
+  try {
+    // put은 thunk의 dispatch와 같다.
+    // delay 는 setItemout과 기능이 같다.
+    // const result = yield call(logInAPI)
+    yield delay(1000);
+    yield put({
+      type: "LOG_IN_SUCCESS",
+      data: action.data,
+    });
+  } catch (err) {
+    yield put({
+      type: "LOG_IN_FAILURE",
+      data: err.response.data,
+    });
+  }
+}
+
+function* logOut(action) {
+  try {
+    yield delay(1000);
+    yield put({
+      type: "LOG_OUT_SUCCESS",
+    });
+  } catch (err) {
+    yield put({
+      type: "LOG_OUT_FAILURE",
+      data: err.response.data,
+    });
+  }
+}
+
+function* watchLogIn() {
+  //   Take는 LOG_IN이 실행될때까지 기다리겠다는 것이다.
+  //   Take는 일회용이다. 1번만 딱 실행해준다.
+  //   while take는 동기적으로 동작하지만 takeEvery(while문 대체)는 비동기로 동작한다.
+  //   takeLatest는 여러번 눌렀을때 마지막것만 실행된다. 클릭실수를 막아준다.
+  //   takeLatest는 따닥2번 눌렀을때 응답만 2번 중1번만 할뿐 만약 입력이 2번눌리었다면
+  //                2번다 서버에 저장되고 1번만 프론트로 데이타를 넘긴다. 요청까지 취소못한다.
+  //                새로고침하면 같은게 2개가 뜨게된다.
+  //   그래서 throttle이 필요하다. throttle("ADD_POST_REQUEST", addPost, 2000)
+  //   요청보내느것도 정해진 시간에 1번만 보내게 된다. 보통 스크롤해서 데이터를 불러올때 Throttle을 많이 사용한다.
+  //   제로초는 대부분 Takelastest를 사용하고 요청이 2번오는것은 서버에서 검사해서 처리하도록한다.
+
+  // 순서도 fork를 통해 watchLogIn을 실행하면 watchlgoIn은 loginAPI를 통해 서버에서 데이터를 받아온다.
+  yield takeLatest("LOG_IN_REQUEST", logIn);
+}
+
+function* watchLogOut() {
+  yield takeLatest("LOG_OUT_REQUEST", logOut);
+}
+
+export default function* userSaga() {
+  yield all([fork(watchLogIn), fork(watchLogOut)]);
+}

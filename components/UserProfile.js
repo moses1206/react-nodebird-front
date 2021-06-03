@@ -1,15 +1,16 @@
 import React, { useCallback } from "react";
 import { Card, Avatar, Button } from "antd";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
-import { logoutAction } from "../reducers/user";
+import { logoutRequestAction } from "../reducers/user";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
+  const { me, isLoggingOut } = useSelector((state) => state.user);
 
   const onLogout = useCallback(() => {
-    dispatch(logoutAction());
+    dispatch(logoutRequestAction());
   }, []);
   return (
     <div>
@@ -29,8 +30,13 @@ const UserProfile = () => {
           </div>,
         ]}
       >
-        <Card.Meta avatar={<Avatar>BH</Avatar>} title="JBH" />
-        <Button onClick={onLogout}>LogOut</Button>
+        <Card.Meta
+          avatar={<Avatar>{me.nickname[0]}</Avatar>}
+          title={me.nickname}
+        />
+        <Button onClick={onLogout} loading={isLoggingOut}>
+          LogOut
+        </Button>
       </Card>
     </div>
   );

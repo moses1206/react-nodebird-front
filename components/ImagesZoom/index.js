@@ -19,7 +19,7 @@ const ImagesZoom = ({ images, onClose }) => {
     <div className={styles.overlay}>
       <header className={styles.header}>
         <h1 className={styles.title}>상세 이미지</h1>
-        <button className={styles.closebtn} onClose={onClose}>
+        <button className={styles.closebtn} onClick={onClose}>
           X
         </button>
       </header>
