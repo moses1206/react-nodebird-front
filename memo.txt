@@ -1,0 +1,50 @@
+1. LoginForm : 아이디 비빌번호를 적고 LoginButton 클릭
+2. const onSubmitForm 안에 dispatch(loginRequestAction({id,password}))실행된다
+3. sagas 폴더의 user.js에서 watchLogin() 안의 "LOG_IN_REQUEST"가 실행되면서 
+    Generator function* logIn() 이 실행된다.
+4. 그와 동시에 reducer에서 "LOG_IN_REQUEST"가 실행되면서 isloggingIn 이 true가 되면서
+   Spinner 가 돌아간다.
+5. 1초후에 사가에 "LOG_IN_SUCCESS"가 실행된다. 그러면 Reducer에서도 LOG_IN_SUCCESS가 실행되고
+    ...state,
+    isLoggingIn: false, ==> 스피너가 없어지고
+    isLoggedIn: true, ==> Login이 된상태가 되면서
+    me: { ...action.data, nickname: "BuHoJang" } ==>로그인 정보인 me에 데이터가 들어간다.
+    
+    그러면 AppLayout에서 
+    Col xs={24} md={6}>
+          {isLoggedIn ? <UserProfile /> : <LoginForm />}
+    </Col>    
+    LoginForm 에서  UserProfile 로 바뀌게 된다. 
+    
+6. 사가에서는 서버랑통신해서 action.data에 서버데이터를 담아서 reducer에 넘긴다.
+    
+    function* logIn(action) {
+  // Call은 데이터를 받아올때까지 기다리는 것이고 fork 는 데이터를 받아오면서 다른것도 동시에 실행된다.
+  //   요청의 성공은 result.data , 실패는 err.response.data에 담겨져있따.
+
+  try {
+    // put은 thunk의 dispatch와 같다.
+    // delay 는 setItemout과 기능이 같다.
+    // const result = yield call(logInAPI)
+    yield delay(1000);
+    yield put({
+      type: "LOG_IN_SUCCESS",
+      data: action.data,
+    });
+  } catch (err) {
+    yield put({
+      type: "LOG_IN_FAILURE",
+      data: err.response.data,
+    });
+  }
+}
+
+7. 그러면 리듀서에서 Redux를 통해 서버데이터를 중앙저장소에 장착한다. 
+
+case "LOG_IN_SUCCESS":
+      return {
+        ...state,
+        isLoggingIn: false,
+        isLoggedIn: true,
+        me: { ...action.data, nickname: "BuHoJang" },
+      };

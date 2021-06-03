@@ -41,7 +41,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         isLoggingIn: false,
-        isLoggedIn: false,
+        isLoggedIn: true,
         me: { ...action.data, nickname: "BuHoJang" },
       };
 
