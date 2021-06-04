@@ -1,18 +1,23 @@
-import React, { useState, useCallback } from "react";
-import Head from "next/head";
-import { Form, Input, Checkbox, Button } from "antd";
-import AppLayout from "../components/AppLayout";
+import React, { useState, useCallback } from 'react';
+import Head from 'next/head';
+import { useDispatch, useSelector } from 'react-redux';
+import { Form, Input, Checkbox, Button } from 'antd';
+import AppLayout from '../components/AppLayout';
 
-import useInput from "../hooks/useInput";
-import styles from "../styles/SignUp.module.css";
+import useInput from '../hooks/useInput';
+import styles from '../styles/SignUp.module.css';
+import { SIGN_UP_REQUEST } from '../reducers/types';
 
 const Signup = () => {
-  const [id, onChangeId] = useInput("");
-  const [nickname, onChangeNickname] = useInput("");
-  const [password, onChangePassword] = useInput("");
+  const dispatch = useDispatch();
+  const { signUpLoading } = useSelector((state) => state.user);
+
+  const [email, onChangeEmail] = useInput('');
+  const [nickname, onChangeNickname] = useInput('');
+  const [password, onChangePassword] = useInput('');
 
   const [passwordError, setPasswordError] = useState(false);
-  const [passwordCheck, setPasswordCheck] = useState("");
+  const [passwordCheck, setPasswordCheck] = useState('');
   const onChangePasswordCheck = useCallback(
     (e) => {
       setPasswordCheck(e.target.value);
@@ -21,8 +26,8 @@ const Signup = () => {
     [password]
   );
 
-  const [term, setTerm] = useState("");
-  const [termError, setTermError] = useState("");
+  const [term, setTerm] = useState('');
+  const [termError, setTermError] = useState('');
   const onChangeTerm = useCallback((e) => {
     setTerm(e.target.checked);
     setTermError(false);
@@ -35,7 +40,7 @@ const Signup = () => {
     if (!term) {
       return setTermError(true);
     }
-    console.log(id, nickname, password);
+    dispatch({ type: SIGN_UP_REQUEST, data: { email, password, nickname } });
   }, [password, passwordCheck, term]);
 
   return (
@@ -45,9 +50,15 @@ const Signup = () => {
       </Head>
       <Form onFinish={onSubmit}>
         <div>
-          <label htmlFor="user-id">UserID</label>
+          <label htmlFor="user-email">User Email</label>
           <br />
-          <Input name="user-id" value={id} onChange={onChangeId} required />
+          <Input
+            name="user-email"
+            type="email"
+            value={email}
+            onChange={onChangeEmail}
+            required
+          />
         </div>
         <div>
           <label htmlFor="user-nickname">UserNickName</label>
@@ -93,7 +104,7 @@ const Signup = () => {
           )}
         </div>
         <div>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" loading={signUpLoading}>
             Register
           </Button>
         </div>

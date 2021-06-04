@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-import Slick from "react-slick";
-import styles from "../../styles/ImagesZoom.module.css";
-import { createGlobalStyle } from "styled-components";
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import Slick from 'react-slick';
+import { createGlobalStyle } from 'styled-components';
+import styles from '../../styles/ImagesZoom.module.css';
 
 const Global = createGlobalStyle`
     .slick-slide {
@@ -19,7 +19,7 @@ const ImagesZoom = ({ images, onClose }) => {
     <div className={styles.overlay}>
       <header className={styles.header}>
         <h1 className={styles.title}>상세 이미지</h1>
-        <button className={styles.closebtn} onClick={onClose}>
+        <button type="button" className={styles.closebtn} onClick={onClose}>
           X
         </button>
       </header>
@@ -49,7 +49,7 @@ const ImagesZoom = ({ images, onClose }) => {
           <div className={styles.indicator}>
             <div className={styles.indicatorWrapper}>
               {currentSlide + 1}
-              {"  "} /{images.length}
+              {'  '} /{images.length}
             </div>
           </div>
         </div>

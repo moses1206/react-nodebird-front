@@ -8,16 +8,16 @@ import {
   SIGN_UP_REQUEST,
   SIGN_UP_SUCCESS,
   SIGN_UP_FAILURE,
-} from "./types";
+} from './types';
 
 export const initialState = {
-  logInLoading: false, //로그인 시도중
+  logInLoading: false, // 로그인 시도중
   logInDone: false,
   logInError: false,
-  logOutLoading: false, //로그아웃 시도중
+  logOutLoading: false, // 로그아웃 시도중
   logOutDone: false,
   logOutError: null,
-  signUpLoading: false, //가입 시도중
+  signUpLoading: false, // 가입 시도중
   signUpDone: false,
   signUpError: null,
   me: null,
@@ -30,7 +30,7 @@ export const initialState = {
 
 const dummyUser = (data) => ({
   ...data,
-  nickname: "BuHoJang",
+  nickname: 'BuHoJang',
   id: 1,
   // 시퀄라이즈에서 합쳐주기때문에 대문자이다.
   // 데어터베이스에서 가져온다.

@@ -1,15 +1,14 @@
-import React from "react";
-import PropTypes from "prop-types";
-import Link from "next/link";
-import { Menu, Input, Row, Col } from "antd";
+import React from 'react';
+import PropTypes from 'prop-types';
+import Link from 'next/link';
+import { Menu, Input, Row, Col } from 'antd';
+import { createGlobalStyle } from 'styled-components';
+import { useSelector } from 'react-redux';
 
-import UserProfile from "./UserProfile";
-import LoginForm from "./LoginForm";
+import UserProfile from './UserProfile';
+import LoginForm from './LoginForm';
 
-import styles from "../styles/AppLayout.module.css";
-import { createGlobalStyle } from "styled-components";
-
-import { useSelector } from "react-redux";
+import styles from '../styles/AppLayout.module.css';
 
 // antd 의 문제점을 해결할 수 있다.
 const Global = createGlobalStyle`
@@ -28,7 +27,7 @@ const Global = createGlobalStyle`
 `;
 
 const AppLayout = ({ children }) => {
-  const { logInDone } = useSelector((state) => state.user);
+  const { me } = useSelector((state) => state.user);
 
   return (
     <div>
@@ -55,7 +54,7 @@ const AppLayout = ({ children }) => {
       </Menu>
       <Row gutter={8}>
         <Col xs={24} md={6}>
-          {logInDone ? <UserProfile /> : <LoginForm />}
+          {me ? <UserProfile /> : <LoginForm />}
         </Col>
         <Col xs={24} md={12}>
           {children}

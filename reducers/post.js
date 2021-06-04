@@ -5,7 +5,7 @@ import {
   ADD_COMMENT_REQUEST,
   ADD_COMMENT_SUCCESS,
   ADD_COMMENT_FAILURE,
-} from "../reducers/types";
+} from './types';
 
 export const initialState = {
   mainPosts: [
@@ -16,32 +16,32 @@ export const initialState = {
       id: 1,
       User: {
         id: 1,
-        nickname: "제로초",
+        nickname: '제로초',
       },
-      content: "첫 번째 게시글 #너구리 #토끼 #참새",
+      content: '첫 번째 게시글 #너구리 #토끼 #참새',
       Images: [
         {
-          src: "https://bookthumb-phinf.pstatic.net/cover/137/995/13799585.jpg?udate=20180726",
+          src: 'https://bookthumb-phinf.pstatic.net/cover/137/995/13799585.jpg?udate=20180726',
         },
         {
-          src: "https://gimg.gilbut.co.kr/book/BN001958/rn_view_BN001958.jpg",
+          src: 'https://gimg.gilbut.co.kr/book/BN001958/rn_view_BN001958.jpg',
         },
         {
-          src: "https://gimg.gilbut.co.kr/book/BN001998/rn_view_BN001998.jpg",
+          src: 'https://gimg.gilbut.co.kr/book/BN001998/rn_view_BN001998.jpg',
         },
       ],
       Comments: [
         {
           User: {
-            nickname: "nero",
+            nickname: 'nero',
           },
-          content: "우와 개정판이 나왔군요~",
+          content: '우와 개정판이 나왔군요~',
         },
         {
           User: {
-            nickname: "hero",
+            nickname: 'hero',
           },
-          content: "얼른 사고싶어요~",
+          content: '얼른 사고싶어요~',
         },
       ],
     },
@@ -64,10 +64,10 @@ export const addComment = (data) => ({
 
 const dummyPost = {
   id: 2,
-  content: "두번째 포스트",
+  content: '두번째 포스트',
   User: {
     id: 1,
-    nickname: "ZeroCho",
+    nickname: 'ZeroCho',
   },
   Image: [],
   Comment: [],

@@ -1,29 +1,30 @@
-import React, { useCallback, useState, useRef } from "react";
+import React, { useCallback, useRef, useEffect } from "react";
 import { Button, Form, Input } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 
 import styles from "../styles/PostForm.module.css";
 
 import { addPost } from "../reducers/post";
+import useInput from "../hooks/useInput";
 
 const PostForm = () => {
-  const { imagePaths } = useSelector((state) => state.post);
-
-  const imageInput = useRef();
-
+  const { imagePaths, addPostDone } = useSelector((state) => state.post);
   const dispatch = useDispatch();
+  const [text, onChangeText, setText] = useInput("");
 
-  const [text, setText] = useState("");
-
-  const onChangeText = useCallback((e) => {
-    setText(e.target.value);
-  }, []);
+  // 포스트를 입력하고 난후 addPostDone이 true가 되면 post입력창을 초기화한다.
+  useEffect(() => {
+    if (addPostDone) {
+      setText("");
+    }
+  }, [addPostDone]);
 
   const onSubmit = useCallback(() => {
-    dispatch(addPost);
+    dispatch(addPost(text));
     setText("");
-  }, []);
+  }, [text]);
 
+  const imageInput = useRef();
   const onClickImageUpload = useCallback(() => {
     imageInput.current.click();
   }, [imageInput.current]);
