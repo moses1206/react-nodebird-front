@@ -1,11 +1,11 @@
-import { Form, Input, Button } from 'antd';
+import { Button, Form, Input } from 'antd';
 import React, { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import useInput from '../hooks/useInput';
+import { useDispatch, useSelector } from 'react-redux';
 
-import styles from '../styles/CommentForm.module.css';
+import useInput from '../hooks/useInput';
 import { ADD_COMMENT_REQUEST } from '../reducers/types';
+import styles from '../styles/CommentForm.module.css';
 
 const CommentForm = ({ post }) => {
   const dispatch = useDispatch();
@@ -32,9 +32,9 @@ const CommentForm = ({ post }) => {
     <Form onFinish={onSubmitComment}>
       <Form.Item className={styles.form}>
         <Input.TextArea
+          rows={4}
           value={commentText}
           onChange={onChangeCommentText}
-          rows={4}
         />
         <Button
           className={styles.btn}

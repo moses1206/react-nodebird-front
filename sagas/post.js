@@ -105,7 +105,11 @@ function* watchRemovePost() {
 }
 
 function* watchAddComment() {
-  yield takeLatest(ADD_COMMENT_REQUEST, addComment);
+  try {
+    yield takeLatest(ADD_COMMENT_REQUEST, addComment);
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 export default function* postSaga() {
