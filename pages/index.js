@@ -7,14 +7,14 @@ import PostForm from '../components/PostForm';
 import PostCard from '../components/PostCard';
 
 const Home = () => {
-  const { isLoggedIn } = useSelector((state) => state.user);
+  const { me } = useSelector((state) => state.user);
   const { mainPosts } = useSelector((state) => state.post);
   return (
     <AppLayout>
       <Head>
         <title>Home | NodeBird</title>
       </Head>
-      {isLoggedIn && <PostForm />}
+      {me && <PostForm />}
       {/* 리액트에서 map 을 사용해야할때 index를 키를 쓰면 안된다 */}
       {/* 특히 게시글이 지워지거나, 순서가 달라지거나,중간에 추가될때는 key를 index로 */}
       {/* 써서는 안된다. */}

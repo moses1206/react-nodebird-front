@@ -9,8 +9,10 @@ import { ADD_COMMENT_REQUEST } from '../reducers/types';
 
 const CommentForm = ({ post }) => {
   const dispatch = useDispatch();
+  const { addCommentDone, addCommentLoading } = useSelector(
+    (state) => state.post
+  );
   const id = useSelector((state) => state.user.me?.id);
-  const { addCommentDone } = useSelector((state) => state.post);
   const [commentText, onChangeCommentText, setCommentText] = useInput('');
 
   useEffect(() => {
@@ -22,7 +24,7 @@ const CommentForm = ({ post }) => {
   const onSubmitComment = useCallback(() => {
     dispatch({
       type: ADD_COMMENT_REQUEST,
-      data: { content: commentText, postId: post.id, userId: id },
+      data: { content: commentText, userId: id, postId: post.id },
     });
   }, [commentText, id]);
 
@@ -34,7 +36,12 @@ const CommentForm = ({ post }) => {
           onChange={onChangeCommentText}
           rows={4}
         />
-        <Button className={styles.btn} type="primary" htmlType="submit">
+        <Button
+          className={styles.btn}
+          type="primary"
+          htmlType="submit"
+          loading={addCommentLoading}
+        >
           삐약
         </Button>
       </Form.Item>

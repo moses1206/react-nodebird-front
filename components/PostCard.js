@@ -1,6 +1,6 @@
 /* eslint-disable react/require-default-props */
 import React, { useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Card, Popover, Button, Avatar, List, Comment } from 'antd';
 import {
   RetweetOutlined,
@@ -15,10 +15,14 @@ import PropTypes from 'prop-types';
 import PostImages from './PostImages';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
+import { REMOVE_POST_REQUEST } from '../reducers/types';
 
 const PostCard = ({ post }) => {
+  const dispatch = useDispatch();
+
   const [liked, setLiked] = useState(false);
   const [commentFormOpened, setCommentFormOpened] = useState(false);
+
   const onToggleLike = useCallback(() => {
     // True를 False로 False를 True로
     setLiked((prev) => !prev);
@@ -30,11 +34,19 @@ const PostCard = ({ post }) => {
 
   // 있나없나 검사하고 싶을땐 옵셔널 체이닝 연산자사용(optional chaining 사용)
   const id = useSelector((state) => state.user.me && state.user.me.id);
+  const { removePostLoading } = useSelector((state) => state.post);
+
+  const onRemovePost = useCallback(() => {
+    dispatch({
+      type: REMOVE_POST_REQUEST,
+      data: post.id,
+    });
+  }, []);
 
   return (
     <div>
       <Card
-        cover={post.Images[0] && <PostImages images={post.Images} />}
+        cover={post.Images && <PostImages images={post.Images} />}
         actions={
           // 배열안에 jsx 를 넣을땐는 반드시 Key를 입력해야한다.
           [
@@ -59,7 +71,13 @@ const PostCard = ({ post }) => {
                   {id && post.User.id === id ? (
                     <>
                       <Button>수정</Button>
-                      <Button type="danger">삭제</Button>
+                      <Button
+                        type="danger"
+                        onClick={onRemovePost}
+                        loading={removePostLoading}
+                      >
+                        삭제
+                      </Button>
                     </>
                   ) : (
                     <Button>신고</Button>
@@ -83,7 +101,7 @@ const PostCard = ({ post }) => {
           {/* 코멘트폼에 포스트를 넘겨줘야하는 이유는 어떤글에 댓글을 달건지 정보를 넘겨줘야한다.  */}
           <CommentForm post={post} />
           <List
-            header={`${post.Comments.length}개의 댓글`}
+            header={`${post.Comments ? post.Comments.length : 0} 댓글`}
             itemLayout="horizontal"
             dataSource={post.Comments}
             renderItem={(item) => (

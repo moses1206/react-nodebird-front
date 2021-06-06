@@ -1,27 +1,26 @@
-import React, { useCallback, useRef, useEffect } from "react";
-import { Button, Form, Input } from "antd";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useCallback, useRef, useEffect } from 'react';
+import { Button, Form, Input } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
 
-import styles from "../styles/PostForm.module.css";
+import styles from '../styles/PostForm.module.css';
 
-import { addPost } from "../reducers/post";
-import useInput from "../hooks/useInput";
+import { addPost } from '../reducers/post';
+import useInput from '../hooks/useInput';
 
 const PostForm = () => {
   const { imagePaths, addPostDone } = useSelector((state) => state.post);
   const dispatch = useDispatch();
-  const [text, onChangeText, setText] = useInput("");
+  const [text, onChangeText, setText] = useInput('');
 
   // 포스트를 입력하고 난후 addPostDone이 true가 되면 post입력창을 초기화한다.
   useEffect(() => {
     if (addPostDone) {
-      setText("");
+      setText('');
     }
   }, [addPostDone]);
 
   const onSubmit = useCallback(() => {
     dispatch(addPost(text));
-    setText("");
   }, [text]);
 
   const imageInput = useRef();
@@ -53,20 +52,18 @@ const PostForm = () => {
         </Button>
       </div>
       <div>
-        {imagePaths.map((v) => {
-          return (
-            <div key={v} className={styles.imgContainer}>
-              <img
-                src={"http://localhost:3065/" + v}
-                className={styles.img}
-                alt={v}
-              />
-              <div>
-                <Button>제거</Button>
-              </div>
+        {imagePaths.map((v) => (
+          <div key={v} className={styles.imgContainer}>
+            <img
+              src={`http://localhost:3065/${v}`}
+              className={styles.img}
+              alt={v}
+            />
+            <div>
+              <Button>제거</Button>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </Form>
   );

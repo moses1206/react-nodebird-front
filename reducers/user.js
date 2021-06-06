@@ -8,6 +8,11 @@ import {
   SIGN_UP_REQUEST,
   SIGN_UP_SUCCESS,
   SIGN_UP_FAILURE,
+  CHANGE_NICKNAME_REQUEST,
+  CHANGE_NICKNAME_SUCCESS,
+  CHANGE_NICKNAME_FAILURE,
+  ADD_POST_TO_ME,
+  REMOVE_POST_OF_ME,
 } from './types';
 
 export const initialState = {
@@ -20,6 +25,9 @@ export const initialState = {
   signUpLoading: false, // 가입 시도중
   signUpDone: false,
   signUpError: null,
+  changeNicknameLoading: false, // 닉네임 시도중
+  changeNicknameDone: false,
+  changeNicknameError: null,
   me: null,
   signUpData: {},
   loginData: {},
@@ -34,22 +42,18 @@ const dummyUser = (data) => ({
   id: 1,
   // 시퀄라이즈에서 합쳐주기때문에 대문자이다.
   // 데어터베이스에서 가져온다.
-  Posts: [],
-  Followings: [],
-  Followers: [],
+  Posts: [{ id: 1 }],
+  Followings: [{ nickname: 'ho1' }, { nickname: 'ho2' }, { nickname: 'ho3' }],
+  Followers: [{ nickname: 'ho1' }, { nickname: 'ho2' }, { nickname: 'ho3' }],
 });
 
-export const loginRequestAction = (data) => {
-  return {
-    type: LOG_IN_REQUEST,
-    data,
-  };
-};
-export const logoutRequestAction = () => {
-  return {
-    type: LOG_OUT_REQUEST,
-  };
-};
+export const loginRequestAction = (data) => ({
+  type: LOG_IN_REQUEST,
+  data,
+});
+export const logoutRequestAction = () => ({
+  type: LOG_OUT_REQUEST,
+});
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
@@ -97,7 +101,6 @@ const reducer = (state = initialState, action) => {
         logOutLoading: false,
         logOutError: action.error,
       };
-
     case SIGN_UP_REQUEST:
       return {
         ...state,
@@ -114,8 +117,46 @@ const reducer = (state = initialState, action) => {
     case SIGN_UP_FAILURE:
       return {
         ...state,
-        signUpLoading: false,
-        signUpError: action.error,
+        changeNicknameLoading: false,
+        changeNicknameError: action.error,
+      };
+
+    case CHANGE_NICKNAME_REQUEST:
+      return {
+        ...state,
+        changeNicknameLoading: true,
+        changeNicknameDone: false,
+        changeNicknameError: null,
+      };
+    case CHANGE_NICKNAME_SUCCESS:
+      return {
+        ...state,
+        changeNicknameLoading: false,
+        changeNicknameDone: true,
+      };
+    case CHANGE_NICKNAME_FAILURE:
+      return {
+        ...state,
+        changeNicknameLoading: false,
+        changeNicknameError: action.error,
+      };
+    case ADD_POST_TO_ME:
+      // 게시글을 쓰면 게시글의 아이디가 여기에
+      // 추가가 된다.
+      return {
+        ...state,
+        me: {
+          ...state.me,
+          Posts: [{ id: action.data }, ...state.me.Posts],
+        },
+      };
+    case REMOVE_POST_OF_ME:
+      return {
+        ...state,
+        me: {
+          ...state.me,
+          Posts: state.me.Posts.filter((V) => V.id !== action.data),
+        },
       };
 
     default:
