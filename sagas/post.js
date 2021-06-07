@@ -1,4 +1,11 @@
-import { all, delay, fork, put, takeLatest } from 'redux-saga/effects';
+import {
+  all,
+  delay,
+  fork,
+  put,
+  takeLatest,
+  throttle,
+} from 'redux-saga/effects';
 import axios from 'axios';
 
 import shortId from 'shortid';
@@ -6,6 +13,9 @@ import {
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
   ADD_POST_FAILURE,
+  LOAD_POST_REQUEST,
+  LOAD_POST_SUCCESS,
+  LOAD_POST_FAILURE,
   REMOVE_POST_REQUEST,
   REMOVE_POST_SUCCESS,
   REMOVE_POST_FAILURE,
@@ -15,6 +25,27 @@ import {
   ADD_COMMENT_FAILURE,
   ADD_POST_TO_ME,
 } from '../reducers/types';
+import { generateDummyPost } from '../reducers/post';
+
+function loadPostsAPI(data) {
+  return axios.get('/api/posts', data);
+}
+
+function* loadPosts(action) {
+  try {
+    // const result = yield call(addCommentAPI, action.data);
+    yield delay(1000);
+    yield put({
+      type: LOAD_POST_SUCCESS,
+      data: generateDummyPost(10),
+    });
+  } catch (err) {
+    yield put({
+      type: LOAD_POST_FAILURE,
+      data: err.response.data,
+    });
+  }
+}
 
 function addPostAPI(data) {
   return axios.post('/api/post', data);
@@ -94,6 +125,10 @@ function* addComment(action) {
   }
 }
 
+function* watchLoadPosts() {
+  yield throttle(5000, LOAD_POST_REQUEST, loadPosts);
+}
+
 function* watchAddPost() {
   // 2초동안 여러번 눌러도 1번만 서버에 요청을 보낸다.
   yield takeLatest(ADD_POST_REQUEST, addPost);
@@ -113,5 +148,10 @@ function* watchAddComment() {
 }
 
 export default function* postSaga() {
-  yield all([fork(watchAddPost), fork(watchRemovePost), fork(watchAddComment)]);
+  yield all([
+    fork(watchAddPost),
+    fork(watchRemovePost),
+    fork(watchAddComment),
+    fork(watchLoadPosts),
+  ]);
 }

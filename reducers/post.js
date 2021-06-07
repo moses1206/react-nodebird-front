@@ -1,6 +1,7 @@
 import shortId from 'shortid';
 import produce from 'immer';
 
+import faker from 'faker';
 import {
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
@@ -11,55 +12,20 @@ import {
   REMOVE_POST_REQUEST,
   REMOVE_POST_SUCCESS,
   REMOVE_POST_FAILURE,
+  LOAD_POST_REQUEST,
+  LOAD_POST_SUCCESS,
+  LOAD_POST_FAILURE,
 } from './types';
 
 export const initialState = {
-  mainPosts: [
-    {
-      // id, content는 소문자이고 User,Images,Comments는 왜 대문자인가?
-      // User,Images,Comments 는 조인을 통해 다른 테이블의 값을 가져오게 된다.
-      // 가져오는 데이터는 대문자로 나타낸다.
-      id: 1,
-      User: {
-        id: 1,
-        nickname: '제로초',
-      },
-      content: '첫 번째 게시글 #너구리 #토끼 #참새',
-      Images: [
-        {
-          id: shortId.generate(),
-          src: 'https://bookthumb-phinf.pstatic.net/cover/137/995/13799585.jpg?udate=20180726',
-        },
-        {
-          id: shortId.generate(),
-          src: 'https://gimg.gilbut.co.kr/book/BN001958/rn_view_BN001958.jpg',
-        },
-        {
-          id: shortId.generate(),
-          src: 'https://gimg.gilbut.co.kr/book/BN001998/rn_view_BN001998.jpg',
-        },
-      ],
-      Comments: [
-        {
-          id: shortId.generate(),
-          User: {
-            id: 1,
-            nickname: 'nero',
-          },
-          content: '우와 개정판이 나왔군요~',
-        },
-        {
-          id: shortId.generate(),
-          User: {
-            id: shortId.generate(),
-            nickname: 'hero',
-          },
-          content: '얼른 사고싶어요~',
-        },
-      ],
-    },
-  ],
+  mainPosts: [],
   imagePaths: [],
+  // 처음에는 무조건 가져와야해서 haseMorePosts: True 롤 하고
+  // 데이터가 40개 있는데 10개씩불러오다가 이제 불러올것이 없다면 false로 된다.
+  hasMorePosts: true,
+  loadPostLoading: false,
+  loadPostDone: false,
+  loadPostError: null,
   addPostLoading: false,
   addPostDone: false,
   addPostError: null,
@@ -70,6 +36,31 @@ export const initialState = {
   addCommentDone: false,
   addCommentError: null,
 };
+
+export const generateDummyPost = (number) =>
+  // eslint-disable-next-line implicit-arrow-linebreak
+  Array(number)
+    .fill()
+    .map(() => ({
+      id: shortId.generate(),
+      User: {
+        id: shortId.generate(),
+        nickname: faker.name.findName(),
+      },
+      content: faker.lorem.paragraph(),
+      Images: [{ id: shortId.generate(), src: faker.image.image() }],
+      Comments: [
+        {
+          User: {
+            id: shortId.generate(),
+            nickname: faker.name.findName(),
+          },
+          content: faker.lorem.sentence(),
+        },
+      ],
+    }));
+
+// initialState.mainPosts = initialState.mainPosts.concat(generateDummyPost(10));
 
 export const addPost = (data) => ({
   type: ADD_POST_REQUEST,
@@ -106,8 +97,25 @@ const dummyComment = (data) => ({
 
 // 이전 상태를 액션을 통해 다음 상태로 만들어내는 함수(불변성은 지키면서)
 const reducer = (state = initialState, action) =>
+  // eslint-disable-next-line implicit-arrow-linebreak
   produce(state, (draft) => {
     switch (action.type) {
+      case LOAD_POST_REQUEST:
+        draft.loadPostLoading = true;
+        draft.loadPostDone = false;
+        draft.loadPostError = null;
+        break;
+      case LOAD_POST_SUCCESS:
+        draft.loadPostLoading = false;
+        draft.loadPostDone = true;
+        // action.data에 추가되는 더미데이터가 있고 그것을 기존데이터에 합쳐준다.
+        draft.mainPosts = action.data.concat(draft.mainPosts);
+        draft.hasMorePosts = draft.mainPosts.length < 50;
+        break;
+      case LOAD_POST_FAILURE:
+        draft.loadPostLoading = false;
+        draft.loadPostError = action.error;
+        break;
       case ADD_POST_REQUEST:
         draft.addPostLoading = true;
         draft.addPostDone = false;
