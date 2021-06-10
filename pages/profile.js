@@ -9,7 +9,7 @@ import NicknameEditForm from '../components/NicknameEditForm';
 const Profile = () => {
   const { me } = useSelector((state) => state.user);
 
-  // 로그인이 되지 않았다면 HomePage로 이동하기
+  // 로그인(내정보가 없으면)이 되지 않았다면 HomePage로 이동하기
   useEffect(() => {
     if (!(me && me.id)) {
       Router.push('/');

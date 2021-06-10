@@ -1,0 +1,53 @@
+CommentForm Submit Data Flow
+1.  pages/index.js(홈페이지) 에서 PostCard 에 props로 post를 보낸다.
+2.  CommentForm에서 submit을 누르게 되면 data에 { content: commentText, postId: post.id, userId: id }
+    들어가게 되고 ADD_COMMENT_REQUEST 가 실행된다.    
+3.  postId는 props로 받고 userId는 useSelector에서 state.user.id로 가져오고
+    content(댓글)는 입력된 commentText에서 가져온다.
+4.  Saga에서 대기하고 있던 제너레이터가 ADD_COMMENT_REQUEST 를 감지하고
+    addComment를 실행하게 된다. 
+    
+    function* addComment(action) {
+      try {
+        // const result = yield call(addPostAPI,action.payload)
+        yield delay(1000);
+        yield put({
+          type: ADD_COMMENT_SUCCESS,
+          data: action.data,
+        });
+      } catch (err) {
+        yield put({
+          type: ADD_COMMENT_FAILURE,
+          data: err.response.data,
+        });
+      }
+    }
+
+    서버의 응답에 따라 SUCCESS or FAILURE가 실행된다.
+5.  Reducer에서 ADD_COMMENT_SUCCESS 가 실행된다.
+    
+    case ADD_COMMENT_SUCCESS: {
+      // acton.data.content , action.postId, action.userId가 넘어온다.
+      // 댓글을 찾을려면 mainPosts 안에 Comment로 접근하고 불변성을 지키면서 추가해야한다.
+      
+      1) id가 같은 post의 아이디를 postIndex에 저장한다. 
+      const postIndex = state.mainPosts.findIndex(
+        (v) => v.id === action.data.postId
+      );
+
+      2) mainPosts에서 postIndex를 가진 post를 새로운 객체 post에 저장한다.
+      const post = { ...state.mainPosts[postIndex] };
+
+      3) post 의 Comment에 접근해서 comment를 추가한다.
+      post.Comments = [dummyComment(action.data.content), ...post.Comments];
+
+      4) mainPosts를 새롭게 만든다. 
+      const mainPosts = [state.mainPosts];
+      mainPosts[postIndex] = post;
+
+      return {
+        ...state,
+        addCommentLoading: false,
+        addCommentDone: true,
+      };
+    }

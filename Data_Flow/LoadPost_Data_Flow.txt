@@ -1,0 +1,42 @@
+LoadPost Data Flow
+1. UseEffect를 통해 홈화면 로딩시 LOAD_POST_REQUEST 를 호출한다.
+const Home = () => {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+      dispatch({
+        type: LOAD_POST_REQUEST,
+      });
+    }, []);
+
+2. 사가에서 fork(watchLoadPosts) 통해 인식하고 function loadPosts를 실행한다.
+    function* watchLoadPosts() {
+      yield takeLatest(LOAD_POST_REQUEST, loadPosts);
+    }
+
+3. loadPosts action에서 LOAD_POST_SUCCESS 실행하고 더미데이터 10개를 만들어 Reducer로 넘긴다.
+    function* loadPosts(action) {
+      try {
+        // const result = yield call(addCommentAPI, action.data);
+        yield delay(1000);
+        yield put({
+          type: LOAD_POST_SUCCESS,
+          data: generateDummyPost(10),
+        });
+      } catch (err) {
+        yield put({
+          type: LOAD_POST_FAILURE,
+          data: err.response.data,
+        });
+      }
+    }
+
+4. Saga에서 넘긴 10개 데이터를 concat을 통해 기존 데이터와 합쳐준다.
+      case LOAD_POST_SUCCESS:
+          draft.loadPostLoading = false;
+          draft.loadPostDone = true;
+          // action.data에 추가되는 더미데이터가 있고 그것을 기존데이터에 합쳐준다.
+          draft.mainPosts.action.data.concat(draft.mainPosts);
+          draft.hasMorePosts = draft.mainPosts.length < 50;
+          break;
+

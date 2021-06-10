@@ -1,0 +1,28 @@
+1. 서버에서 중복된 에러가 발생하게 되면
+router.post('/', async (req, res, next) => {
+    try {
+      const exUser = await User.findOne({
+        where: {
+          email: req.body.email,
+        },
+      });
+      if (exUser) {
+        return res.status(403).send('이미 사용중인 아이디 입니다.'); <=== 에러가 발생하면
+      }
+      
+2. ('이미 사용중인 아이디 입니다.') 메세지가 Saga의 error로 들어가게된다.
+
+
+3. Saga에서
+        yield put({
+            type: SIGN_UP_FAILURE,
+            error: err.response.data,
+            });
+        실행하면
+     
+4. Reducer          case SIGN_UP_FAILURE:
+                        draft.signUpLoading = false;
+                        draft.signUpError = action.error;
+                        break;
+        리듀서에서 signUpError에 메세지가 들어가게된다.
+        그러면 alert(signUpError)를 통해 메세지가 alert창에 뜨게 된다.
