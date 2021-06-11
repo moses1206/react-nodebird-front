@@ -32,6 +32,7 @@ function* logIn(action) {
   try {
     // put은 thunk의 dispatch와 같다.
     // delay 는 setItemout과 기능이 같다.
+    // result에 서버에서 보낸 res.json(user) => deserialize된 User 데이터가 담긴다.
     const result = yield call(logInAPI, action.data);
     yield put({
       type: LOG_IN_SUCCESS,
@@ -65,14 +66,14 @@ function logOutAPI() {
   return axios.post('/user/logout');
 }
 
-function* logOut(action) {
+function* logOut() {
   try {
-    // const result = yield call(logOutAPI)
-    yield delay(1000);
+    yield call(logOutAPI);
     yield put({
       type: LOG_OUT_SUCCESS,
     });
   } catch (err) {
+    console.error(err);
     yield put({
       type: LOG_OUT_FAILURE,
       error: err.response.data,

@@ -11,9 +11,18 @@ import { SIGN_UP_REQUEST } from '../reducers/types';
 
 const Signup = () => {
   const dispatch = useDispatch();
-  const { signUpLoading, signUpDone, signUpError } = useSelector(
+  const { signUpLoading, signUpDone, signUpError, me } = useSelector(
     (state) => state.user
   );
+
+  // 로그인이되면 화면에서 나가기
+  // Router.Push("/") 는 뒤로가기하면 페이지가 남는데
+  // Router.replace("/")는 페이지가 사라진다.
+  useEffect(() => {
+    if (me && me.id) {
+      Router.replace('/');
+    }
+  }, [me && me.id]);
 
   useEffect(() => {
     if (signUpDone) {
@@ -23,6 +32,7 @@ const Signup = () => {
 
   useEffect(() => {
     if (signUpError) {
+      // eslint-disable-next-line no-alert
       alert(signUpError);
     }
   }, [signUpError]);

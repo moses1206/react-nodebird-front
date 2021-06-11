@@ -11,6 +11,7 @@ const FollowButton = ({ post }) => {
   );
   //   로그인이 되어있고 Followings리스트에서 post.User.id 와 같은사람이 있는지 찾는다.
   const isFollowing = me?.Followings.find((v) => v.id === post.User.id);
+
   const onClickButton = useCallback(() => {
     if (isFollowing) {
       dispatch({
@@ -26,6 +27,10 @@ const FollowButton = ({ post }) => {
       });
     }
   }, [isFollowing]);
+
+  if (post.User.id === me.id) {
+    return null;
+  }
 
   return (
     <Button loading={followLoading || unfollowLoading} onClick={onClickButton}>

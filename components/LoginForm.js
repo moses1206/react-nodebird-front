@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Button, Form, Input } from 'antd';
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,10 +10,18 @@ import { loginRequestAction } from '../reducers/user';
 const LoginForm = () => {
   const dispatch = useDispatch();
   // Import Data
-  const { logInLoading } = useSelector((state) => state.user);
+  const { logInLoading, logInError } = useSelector((state) => state.user);
 
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
+
+  // 로그인이 실패했을때 화면에 메세지 표시
+  useEffect(() => {
+    if (logInError) {
+      // eslint-disable-next-line no-alert
+      alert(logInError);
+    }
+  }, [logInError]);
 
   const onSubmitForm = useCallback(() => {
     dispatch(
