@@ -12,10 +12,14 @@
 // const g = gen();
 // g.next();
 
-import { all, fork } from "redux-saga/effects";
+import { all, fork } from 'redux-saga/effects';
+import axios from 'axios';
 
-import postSaga from "./post";
-import userSaga from "./user";
+import postSaga from './post';
+import userSaga from './user';
+
+// 중복주소 제거
+axios.defaults.baseURL = 'http://localhost:3065';
 
 export default function* rootSaga() {
   // All은 동시에 배열안에 모든것을 실행한다.

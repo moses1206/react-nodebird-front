@@ -19,9 +19,10 @@ import {
   UNFOLLOW_FAILURE,
 } from '../reducers/types';
 
+// BaseURL 설정을 했기 때문에 http://localhost:3065는 삭제한다.
 // Log In
 function logInAPI(data) {
-  return axios.post('/api/login', data);
+  return axios.post('/user/login', data);
 }
 
 function* logIn(action) {
@@ -31,11 +32,10 @@ function* logIn(action) {
   try {
     // put은 thunk의 dispatch와 같다.
     // delay 는 setItemout과 기능이 같다.
-    // const result = yield call(logInAPI)
-    yield delay(1000);
+    const result = yield call(logInAPI, action.data);
     yield put({
       type: LOG_IN_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
   } catch (err) {
     yield put({
@@ -62,7 +62,7 @@ function* watchLogIn() {
 
 // Log Out
 function logOutAPI() {
-  return axios.post('/api/logout');
+  return axios.post('/user/logout');
 }
 
 function* logOut(action) {
@@ -82,7 +82,7 @@ function* logOut(action) {
 
 // SignUp
 function signUpAPI(data) {
-  return axios.post('http://localhost:3065/user', data);
+  return axios.post('/user', data);
 }
 
 function* signUp(action) {
@@ -103,7 +103,7 @@ function* signUp(action) {
 
 // Follow
 function followAPI() {
-  return axios.post('/api/logout');
+  return axios.post('/user/logout');
 }
 
 function* follow(action) {
