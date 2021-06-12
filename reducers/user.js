@@ -20,13 +20,19 @@ import {
   UNFOLLOW_REQUEST,
   UNFOLLOW_SUCCESS,
   UNFOLLOW_FAILURE,
+  LOAD_USER_REQUEST,
+  LOAD_USER_SUCCESS,
+  LOAD_USER_FAILURE,
 } from './types';
 
 export const initialState = {
-  followLoading: false, // 로그인 시도중
+  loadUserLoading: false, // 유저정보 가져오는중
+  loadUserDone: false,
+  loadUserError: false,
+  followLoading: false, // 팔로우 시도중
   followDone: false,
   followError: false,
-  unfollowLoading: false, // 로그인 시도중
+  unfollowLoading: false, // 언팔로우 시도중
   unfollowDone: false,
   unfollowError: false,
   logInLoading: false, // 로그인 시도중
@@ -72,6 +78,20 @@ const reducer = (state = initialState, action) =>
   // eslint-disable-next-line implicit-arrow-linebreak
   produce(state, (draft) => {
     switch (action.type) {
+      case LOAD_USER_REQUEST:
+        draft.loadUserLoading = true;
+        draft.loadUserError = null;
+        draft.loadUserDone = false;
+        break;
+      case LOAD_USER_SUCCESS:
+        draft.loadUserLoading = false;
+        draft.me = action.data;
+        draft.loadUserDone = true;
+        break;
+      case LOAD_USER_FAILURE:
+        draft.loadUserLoading = false;
+        draft.loadUserError = action.error;
+        break;
       case FOLLOW_REQUEST:
         draft.followLoading = true;
         draft.followError = null;

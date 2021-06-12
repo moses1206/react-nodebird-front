@@ -5,7 +5,7 @@ import AppLayout from '../components/AppLayout';
 
 import PostForm from '../components/PostForm';
 import PostCard from '../components/PostCard';
-import { LOAD_POST_REQUEST } from '../reducers/types';
+import { LOAD_POST_REQUEST, LOAD_USER_REQUEST } from '../reducers/types';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -14,7 +14,11 @@ const Home = () => {
     (state) => state.post
   );
 
+  // 로그인 상태 및 포스트를 로드(유지)해준다.
   useEffect(() => {
+    dispatch({
+      type: LOAD_USER_REQUEST,
+    });
     dispatch({
       type: LOAD_POST_REQUEST,
     });
