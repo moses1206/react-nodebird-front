@@ -25,19 +25,17 @@ import {
   ADD_COMMENT_FAILURE,
   ADD_POST_TO_ME,
 } from '../reducers/types';
-import { generateDummyPost } from '../reducers/post';
 
 function loadPostsAPI(data) {
-  return axios.get('/api/posts', data);
+  return axios.get('/posts', data);
 }
 
 function* loadPosts(action) {
   try {
-    // const result = yield call(addCommentAPI, action.data);
-    yield delay(1000);
+    const result = yield call(loadPostsAPI, action.data);
     yield put({
       type: LOAD_POST_SUCCESS,
-      data: generateDummyPost(10),
+      data: result.data,
     });
   } catch (err) {
     yield put({
@@ -115,6 +113,7 @@ function* addComment(action) {
       data: result.data,
     });
   } catch (err) {
+    console.error(err);
     yield put({
       type: ADD_COMMENT_FAILURE,
       data: err.response.data,

@@ -21,6 +21,8 @@ const Home = () => {
     });
     dispatch({
       type: LOAD_POST_REQUEST,
+      // 처음에 모든 포스트를 불러오는것이 아니다
+      // 스크롤을 할때마다 정해진 숫자를 불러온다.
     });
   }, []);
 

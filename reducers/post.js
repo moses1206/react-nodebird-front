@@ -1,7 +1,5 @@
-import shortId from 'shortid';
 import produce from 'immer';
 
-import faker from 'faker';
 import {
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
@@ -36,31 +34,6 @@ export const initialState = {
   addCommentDone: false,
   addCommentError: null,
 };
-
-export const generateDummyPost = (number) =>
-  // eslint-disable-next-line implicit-arrow-linebreak
-  Array(number)
-    .fill()
-    .map(() => ({
-      id: shortId.generate(),
-      User: {
-        id: shortId.generate(),
-        nickname: faker.name.findName(),
-      },
-      content: faker.lorem.paragraph(),
-      Images: [{ id: shortId.generate(), src: faker.image.image() }],
-      Comments: [
-        {
-          User: {
-            id: shortId.generate(),
-            nickname: faker.name.findName(),
-          },
-          content: faker.lorem.sentence(),
-        },
-      ],
-    }));
-
-// initialState.mainPosts = initialState.mainPosts.concat(generateDummyPost(10));
 
 export const addPost = (data) => ({
   type: ADD_POST_REQUEST,
