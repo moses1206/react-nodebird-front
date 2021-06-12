@@ -5,10 +5,10 @@ import {
   put,
   takeLatest,
   throttle,
+  call,
 } from 'redux-saga/effects';
 import axios from 'axios';
 
-import shortId from 'shortid';
 import {
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
@@ -48,27 +48,23 @@ function* loadPosts(action) {
 }
 
 function addPostAPI(data) {
-  return axios.post('/api/post', data);
+  // req.body.content를 보내주기위해 content:data 입력
+  return axios.post('/post', { content: data });
 }
 
 function* addPost(action) {
   try {
-    // const result = yield call(addPostAPI,action.payload)
-    yield delay(1000);
+    const result = yield call(addPostAPI, action.data);
 
     // Post가 등록되면은 User의 Posts 갯수도 +1이 되어야하므로
     // Post가 등록될때 User의 Posts의 내용도 바꿔야한다.
-    const id = shortId.generate();
     yield put({
       type: ADD_POST_SUCCESS,
-      data: {
-        id,
-        content: action.data,
-      },
+      data: result.data,
     });
     yield put({
       type: ADD_POST_TO_ME,
-      data: id,
+      data: result.data.id,
     });
   } catch (err) {
     yield put({
@@ -106,16 +102,17 @@ function* removePost(action) {
 }
 
 function addCommentAPI(data) {
-  return axios.post('/api/post', data);
+  // data : {content,postId,userId}
+  // POST   /post/1/comment
+  return axios.post(`/post/${data.postId}/comment`, data);
 }
 
 function* addComment(action) {
   try {
-    // const result = yield call(addCommentAPI, action.data);
-    yield delay(1000);
+    const result = yield call(addCommentAPI, action.data);
     yield put({
       type: ADD_COMMENT_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
   } catch (err) {
     yield put({

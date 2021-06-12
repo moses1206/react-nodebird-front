@@ -21,6 +21,9 @@ import userSaga from './user';
 // 중복주소 제거
 axios.defaults.baseURL = 'http://localhost:3065';
 
+// cors에서 서버간 쿠키 전달시 인증문제 해결
+axios.defaults.withCredentials = true;
+
 export default function* rootSaga() {
   // All은 동시에 배열안에 모든것을 실행한다.
   yield all([fork(postSaga), fork(userSaga)]);

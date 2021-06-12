@@ -72,26 +72,6 @@ export const addComment = (data) => ({
   data,
 });
 
-const dummyPost = (data) => ({
-  id: data.id,
-  content: data.content,
-  User: {
-    id: 1,
-    nickname: 'buthoJang',
-  },
-  Image: [],
-  Comments: [],
-});
-
-const dummyComment = (data) => ({
-  id: shortId.generate(),
-  content: data,
-  User: {
-    id: 1,
-    nickname: '제로초',
-  },
-});
-
 // 리듀서란 불변성은 지키면서 이전상태를 액션을 통해 다음 상태로 만들어내는 함수.
 // Immer가 알아서 불변성을 지켜준다. 우리는 편하게 state만 바꾸어주면 된다.
 
@@ -108,7 +88,6 @@ const reducer = (state = initialState, action) =>
       case LOAD_POST_SUCCESS:
         draft.loadPostLoading = false;
         draft.loadPostDone = true;
-        // action.data에 추가되는 더미데이터가 있고 그것을 기존데이터에 합쳐준다.
         draft.mainPosts = action.data.concat(draft.mainPosts);
         draft.hasMorePosts = draft.mainPosts.length < 50;
         break;
@@ -124,7 +103,7 @@ const reducer = (state = initialState, action) =>
       case ADD_POST_SUCCESS:
         draft.addPostLoading = false;
         draft.addPostDone = true;
-        draft.mainPosts.unshift(dummyPost(action.data));
+        draft.mainPosts.unshift(action.data);
         break;
       case ADD_POST_FAILURE:
         draft.addPostLoading = false;
@@ -151,9 +130,9 @@ const reducer = (state = initialState, action) =>
         break;
       case ADD_COMMENT_SUCCESS: {
         // id가 같은 포스트를 찾는다
-        const post = draft.mainPosts.find((v) => v.id === action.data.postId);
+        const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
         // 찾은 Post.Comment 에 unshift() 통해 배열을 추가하면 끝~
-        post.Comments.unshift(dummyComment(action.data.content));
+        post.Comments.unshift(action.data);
         draft.addCommentLoading = false;
         draft.addCommentDone = true;
         break;

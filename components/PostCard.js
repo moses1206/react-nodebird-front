@@ -47,7 +47,7 @@ const PostCard = ({ post }) => {
   return (
     <div>
       <Card
-        cover={post.Images && <PostImages images={post.Images} />}
+        cover={post.Images[0] && <PostImages images={post.Images} />}
         actions={
           // 배열안에 jsx 를 넣을땐는 반드시 Key를 입력해야한다.
           [
