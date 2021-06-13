@@ -24,8 +24,63 @@ import {
   ADD_COMMENT_SUCCESS,
   ADD_COMMENT_FAILURE,
   ADD_POST_TO_ME,
+  LIKE_POST_REQUEST,
+  LIKE_POST_SUCCESS,
+  LIKE_POST_FAILURE,
+  UNLIKE_POST_REQUEST,
+  UNLIKE_POST_SUCCESS,
+  UNLIKE_POST_FAILURE,
 } from '../reducers/types';
 
+// ************************************************ //
+// ******************** LIKE ********************** //
+// LIKE UNLIKE 는 patch를 사용한다. 일부수정이다.
+// data는 post.id가 담겨있다.
+// ************************************************ //
+function likePostAPI(data) {
+  return axios.patch(`/post/${data}/like`); // PATCH post/1/like
+}
+
+function* likePost(action) {
+  try {
+    // backend에서 PostId,UserId를 리턴한다.
+    const result = yield call(likePostAPI, action.data);
+    yield put({
+      type: LIKE_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LIKE_POST_FAILURE,
+      data: err.response.data,
+    });
+  }
+}
+
+function unlikePostAPI(data) {
+  // 이 게시물의 라이크를 삭제
+  return axios.delete(`/post/${data}/like`);
+}
+
+function* unlikePost(action) {
+  try {
+    const result = yield call(unlikePostAPI, action.data);
+    yield put({
+      type: UNLIKE_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    yield put({
+      type: UNLIKE_POST_FAILURE,
+      data: err.response.data,
+    });
+  }
+}
+
+// ************************************************ //
+// ***************** LOAD POST ******************** //
+// ************************************************ //
 function loadPostsAPI(data) {
   return axios.get('/posts', data);
 }
@@ -45,6 +100,9 @@ function* loadPosts(action) {
   }
 }
 
+// ************************************************ //
+// ****************** ADD POST ******************** //
+// ************************************************ //
 function addPostAPI(data) {
   // req.body.content를 보내주기위해 content:data 입력
   return axios.post('/post', { content: data });
@@ -72,6 +130,9 @@ function* addPost(action) {
   }
 }
 
+// ************************************************ //
+// *************** REMOVE POST ******************** //
+// ************************************************ //
 function removePostAPI(data) {
   return axios.delete('/api/post', data);
 }
@@ -99,6 +160,9 @@ function* removePost(action) {
   }
 }
 
+// ************************************************ //
+// *************** ADD COMMENT ******************** //
+// ************************************************ //
 function addCommentAPI(data) {
   // data : {content,postId,userId}
   // POST   /post/1/comment
@@ -119,6 +183,17 @@ function* addComment(action) {
       data: err.response.data,
     });
   }
+}
+
+// ************************************************ //
+// ****************** WATCH *********************** //
+// ************************************************ //
+function* watchLikePost() {
+  yield takeLatest(LIKE_POST_REQUEST, likePost);
+}
+
+function* watchUnlikePost() {
+  yield takeLatest(UNLIKE_POST_REQUEST, unlikePost);
 }
 
 function* watchLoadPosts() {
@@ -145,6 +220,8 @@ function* watchAddComment() {
 
 export default function* postSaga() {
   yield all([
+    fork(watchLikePost),
+    fork(watchUnlikePost),
     fork(watchAddPost),
     fork(watchRemovePost),
     fork(watchAddComment),

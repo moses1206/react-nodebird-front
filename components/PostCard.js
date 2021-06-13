@@ -15,28 +15,41 @@ import PropTypes from 'prop-types';
 import PostImages from './PostImages';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
-import { REMOVE_POST_REQUEST } from '../reducers/types';
+import {
+  REMOVE_POST_REQUEST,
+  LIKE_POST_REQUEST,
+  UNLIKE_POST_REQUEST,
+} from '../reducers/types';
 import FollowButton from './FollowButton';
 
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();
-
-  const [liked, setLiked] = useState(false);
   const [commentFormOpened, setCommentFormOpened] = useState(false);
 
-  const onToggleLike = useCallback(() => {
-    // True를 False로 False를 True로
-    setLiked((prev) => !prev);
+  // 있나없나 검사하고 싶을땐 옵셔널 체이닝 연산자사용(optional chaining 사용)
+  // 내 아이디를 id로 저장하고 post의 Likers에 내 아이디가 있는지 확인한다.
+  const id = useSelector((state) => state.user.me && state.user.me.id);
+  const liked = post.Likers.find((v) => v.id === id);
+
+  const onLike = useCallback(() => {
+    dispatch({
+      type: LIKE_POST_REQUEST,
+      data: post.id,
+    });
+  }, []);
+
+  const onUnlike = useCallback(() => {
+    dispatch({
+      type: UNLIKE_POST_REQUEST,
+      data: post.id,
+    });
   }, []);
 
   const onToggleComment = useCallback(() => {
     setCommentFormOpened((prev) => !prev);
   }, []);
 
-  // 있나없나 검사하고 싶을땐 옵셔널 체이닝 연산자사용(optional chaining 사용)
-  const id = useSelector((state) => state.user.me && state.user.me.id);
   const { removePostLoading } = useSelector((state) => state.post);
-
   const onRemovePost = useCallback(() => {
     dispatch({
       type: REMOVE_POST_REQUEST,
@@ -56,10 +69,10 @@ const PostCard = ({ post }) => {
               <HeartTwoTone
                 twoToneColor="#eb2f96"
                 key="heart"
-                onClick={onToggleLike}
+                onClick={onUnlike}
               />
             ) : (
-              <HeartOutlined key="heart" onClick={onToggleLike} />
+              <HeartOutlined key="heart" onClick={onLike} />
             ),
             <MessageOutlined key="comment" onClick={onToggleComment} />,
             <Popover
@@ -133,6 +146,7 @@ PostCard.propTypes = {
     createdAt: PropTypes.string,
     Comments: PropTypes.arrayOf(PropTypes.any),
     Images: PropTypes.arrayOf(PropTypes.any),
+    Likers: PropTypes.arrayOf(PropTypes.object),
   }),
 };
 
