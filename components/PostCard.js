@@ -27,10 +27,14 @@ const PostCard = ({ post }) => {
   const [commentFormOpened, setCommentFormOpened] = useState(false);
 
   // 있나없나 검사하고 싶을땐 옵셔널 체이닝 연산자사용(optional chaining 사용)
-  // 내 아이디를 id로 저장하고 post의 Likers에 내 아이디가 있는지 확인한다.
+  // const id = useSelector((state) => state.user.me?.id);
+  // 내 아이디를 가져온 다음
   const id = useSelector((state) => state.user.me && state.user.me.id);
+  // 거기에 좋아요를 누른 아이디에 내 아이디가 있는지
   const liked = post.Likers.find((v) => v.id === id);
 
+  // Like UnLike는 사용자와 게시글의 관계이다. userId postId가 필요한데
+  // postId는 props로 받고 사용자 아이디는 패스포트에서 req.user에서 받는다.
   const onLike = useCallback(() => {
     dispatch({
       type: LIKE_POST_REQUEST,
@@ -66,12 +70,14 @@ const PostCard = ({ post }) => {
           [
             <RetweetOutlined key="retweet" />,
             liked ? (
+              // 좋아요를 누른 아이디에 내 아이디가 있다면 Unlike
               <HeartTwoTone
                 twoToneColor="#eb2f96"
                 key="heart"
                 onClick={onUnlike}
               />
             ) : (
+              // 없다면 Like
               <HeartOutlined key="heart" onClick={onLike} />
             ),
             <MessageOutlined key="comment" onClick={onToggleComment} />,
