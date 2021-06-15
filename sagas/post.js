@@ -37,6 +37,10 @@ import {
 // LIKE UNLIKE 는 patch를 사용한다. 일부수정이다.
 // data는 post.id가 담겨있다.
 // ************************************************ //
+
+// ***************************************//
+// ************* LIKE POST****************//
+// ***************************************//
 function likePostAPI(data) {
   return axios.patch(`/post/${data}/like`); // PATCH post/1/like
 }
@@ -59,6 +63,9 @@ function* likePost(action) {
   }
 }
 
+// ***************************************//
+// *********** UNLIKE POST****************//
+// ***************************************//
 function unlikePostAPI(data) {
   // 이 게시물의 라이크를 삭제
   return axios.delete(`/post/${data}/like`);
@@ -135,19 +142,19 @@ function* addPost(action) {
 // *************** REMOVE POST ******************** //
 // ************************************************ //
 function removePostAPI(data) {
-  return axios.delete('/api/post', data);
+  return axios.delete(`/post/${data}`);
 }
 
 function* removePost(action) {
   try {
-    // const result = yield call(addPostAPI,action.payload)
+    const result = yield call(removePostAPI, action.payload);
     yield delay(1000);
 
     // Post가 삭제될때 User의 Posts 갯수도 -1이 되어야하므로
     // Post가 삭제될때 User의 Posts의 내용도 바꿔야한다.
     yield put({
       type: REMOVE_POST_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
     yield put({
       type: REMOVE_POST_OF_ME,

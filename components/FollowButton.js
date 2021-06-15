@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Button } from 'antd';
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
@@ -9,7 +9,13 @@ const FollowButton = ({ post }) => {
   const { me, followLoading, unfollowLoading } = useSelector(
     (state) => state.user
   );
-  //   로그인이 되어있고 Followings리스트에서 post.User.id 와 같은사람이 있는지 찾는다.
+
+  // 1. 작성자의 아이디와 내 아이디가 같으면 팔로운 버튼을 지운다.
+  if (post.User.id === me.id) {
+    return null;
+  }
+
+  //  2. 로그인이 되어있고 Followings리스트에서 post.User.id 와 같은사람이 있는지 찾는다.
   const isFollowing = me?.Followings.find((v) => v.id === post.User.id);
 
   const onClickButton = useCallback(() => {
@@ -27,10 +33,6 @@ const FollowButton = ({ post }) => {
       });
     }
   }, [isFollowing]);
-
-  if (post.User.id === me.id) {
-    return null;
-  }
 
   return (
     <Button loading={followLoading || unfollowLoading} onClick={onClickButton}>
