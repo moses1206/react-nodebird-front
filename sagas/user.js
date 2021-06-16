@@ -245,7 +245,7 @@ function* loadFollowers(action) {
 // ********** REMOVE FOLLOWER ************//
 // ***************************************//
 function removeFollowerAPI(data) {
-  return axios.delete(`/user/follower/${data.id}`, data);
+  return axios.delete(`/user/follower/${data}`);
 }
 
 function* removeFollower(action) {

@@ -1,0 +1,237 @@
+이미지 업로드 방식
+1. 첫번째 보냄 (이미지를 선택해서 서버에 업로드)
+2. 파일명을 서버에서 프론트로 리턴(제로초.png , 부기초.png)
+3. 미리보기,리사이징
+
+
+1. 프론트에서 보낸 multipart/form-data를 백앤드에서 받기 위해서는 multer를 설치해야한다.
+PS D:\Dev\React\React-NodeBird\react-nodebird-back> npm i multer
+
+backend        routes/user.js    
+        
+        const multer = require('multer');
+        const path = require('path');
+
+
+frontend        PostForm
+
+1. 이미지업로드 버튼 클릭
+<Button onClick={onClickImageUpload}>이미지 업로드</Button>
+
+2. const onClickImageUpload = useCallback(() => {
+        imageInput.current.click();
+     }, [imageInput.current]);
+
+     ===> const imageInput = useRef(); 이미지 인풋이 실행되면서 파일을 선택할 수 있따.
+
+     3. 이미지를 선택하는 창을 띄운다.
+     const imageInput = useRef();
+     const onClickImageUpload = useCallback(() => {
+       imageInput.current.click();
+     }, [imageInput.current]);
+   
+     4. 이미지를 멀티파트 폼 데이터로 변환한후 key에 image 파일명을 f 에 담아
+        UPLOAD_IMAGE_REQUEST 를 실행한다.
+
+     const onChangeImages = useCallback((e) => {
+       // e.target.files에 올리는 파일 정보가 들어있다.
+       console.log('images', e.target.files);
+   
+       // multipart/form-data 형식으로 변환
+       const imageFormData = new FormData();
+       [].forEach.call(e.target.files, (f) => {
+         imageFormData.append('image', f);
+       });
+   
+       dispatch({
+         type: UPLOAD_IMAGE_REQUEST,
+         data: imageFormData,
+       });
+     });
+
+
+     Saga에서
+        function* watchUploadImages() {
+                yield takeLatest(UPLOAD_IMAGE_REQUEST, uploadImages);
+        }
+
+        // ************************************************ //
+        // *************** IMAGE UPLOAD ******************* //
+        // ************************************************ //
+                function uploadImagesAPI(data) {
+                        return axios.post('/post/images', data);
+                }
+
+                function* uploadImages(action) {
+                        try {
+                                const result = yield call(uploadImagesAPI, action.data);
+                                yield put({
+                                        type: UPLOAD_IMAGE_SUCCESS,
+                                        data: result.data,
+                                });
+                        } catch (err) {
+                                console.error(err);
+                                yield put({
+                                        type: UPLOAD_IMAGE_FAILURE,
+                                        data: err.response.data,
+                                });
+                        }
+                }
+
+backend routes/post.js
+                // @route   POST    /post/images
+                // @desc    Upload Images
+                // @access  private
+                router.post(
+                        '/images',
+                        isLoggedIn,
+                        // 복수의 이미지 업로드.  upload.single('image') : 1장
+                        upload.array('image'),
+                        (req, res, next) => {
+                                console.log(req.files);
+                                res.json(req.files.map((v) => v.filename));
+                        }
+                );
+                ==> 파일 이름을 리턴해준다.
+
+
+frontend saga            yield put({
+                              type: UPLOAD_IMAGE_SUCCESS,
+                              data: result.data,
+                         });
+
+         reducer        case UPLOAD_IMAGE_SUCCESS: {
+                                draft.imagePaths = action.data;
+                                draft.uploadImagesLoading = false;
+                                draft.uploadImagesDone = true;
+                        break;
+
+3. 컨텐트 까지 넣어서 Submit을 하게 되면   
+
+        const onSubmit = useCallback(() => {
+                if (!text || !text.trim()) {
+                        return alert('게시글을 작성하세요!!');
+                }
+
+                const formData = new FormData();
+                imagePaths.forEach((p) => {
+                        formData.append('image', p);
+                });
+                formData.append('content', text);
+
+                return dispatch({
+                        type: ADD_POST_REQUEST,
+                        data: formData,
+                });
+        }, [text, imagePaths]);
+
+        ==> formData에 image path 와 content를 담아서 Saga로 전달한다.
+
+Saga    // ************************************************ //
+        // ****************** ADD POST ******************** //
+        // ************************************************ //
+        function addPostAPI(data) {
+                // req.body.content를 보내주기위해 content:data 입력
+                return axios.post('/post', data);
+        }
+
+
+Backend // @route   POST    /post
+        // @desc    Create a Post
+        // @access  Private
+        router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
+                try {
+                        const post = await Post.create({
+                                content: req.body.content,
+                                UserId: req.user.id,
+                });
+
+                // 이미지가 있다면
+                if (req.body.image) {
+                        // 이미지가 여러개 있다면 Promise.all을 통해 한꺼번에 서버에 기록한다.
+                        if (Array.isArray(req.body.image)) {
+                                const images = await Promise.all(
+                                        req.body.image.map((image) => Image.create({ src: image }))
+                                );
+                                await post.addImages(images);
+                        } else {
+                                // 이미지가 1개만 있다면
+                                const image = await Image.create({ src: req.body.image });
+                                await post.addImages(image);
+                        }
+                }
+
+                // 기본적인 post에는 content,UserId만 있으며 여기에
+                // Post에 있는 사진과 코멘트 , 유저정보를 붙여준다.
+                const fullPost = await Post.findOne({
+                        where: { id: post.id },
+                        include: [
+                                {
+                                        model: Image,
+                                },
+                        ],
+                        include: [
+                                {
+                                        model: User, // 게시글 작성자
+                                        attributes: ['id', 'nickname'],
+                                },
+                                {
+                                        model: User, // 좋아요 누른 사람
+                                        as: 'Likers',
+                                        attributes: ['id'],
+                                },
+                                {
+                                        model: Comment,
+                                        include: [
+                                        {
+                                                model: User, // 댓글 작성자
+                                                attributes: ['id', 'nickname'],
+                                        },
+                                ],
+                                },
+                                {
+                                 model: Image,
+                                },
+                        ],
+                        });
+                        console.log(fullPost);
+                        res.status(201).json(fullPost);
+                } catch (error) {
+                        console.error(error);
+                        next(error);
+                }
+        });
+
+
+
+
+        function* addPost(action) {
+                try {
+                        const result = yield call(addPostAPI, action.data);
+
+                        // Post가 등록되면은 User의 Posts 갯수도 +1이 되어야하므로
+                        // Post가 등록될때 User의 Posts의 내용도 바꿔야한다.
+                        yield put({
+                                type: ADD_POST_SUCCESS,
+                                data: result.data,
+                        });
+                        yield put({
+                                type: ADD_POST_TO_ME,
+                                data: result.data.id,
+                        });
+                } catch (err) {
+                        yield put({
+                                type: ADD_POST_FAILURE,
+                                data: err.response.data,
+                        });
+                }
+        }
+
+
+Reducer      case ADD_POST_SUCCESS:
+                draft.addPostLoading = false;
+                draft.addPostDone = true;
+                draft.mainPosts.unshift(action.data);
+                // 업로드 후 이미지 패스를 초기화
+                draft.imagePaths = [];
+             break;

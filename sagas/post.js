@@ -30,6 +30,9 @@ import {
   UNLIKE_POST_REQUEST,
   UNLIKE_POST_SUCCESS,
   UNLIKE_POST_FAILURE,
+  UPLOAD_IMAGE_SUCCESS,
+  UPLOAD_IMAGE_FAILURE,
+  UPLOAD_IMAGE_REQUEST,
 } from '../reducers/types';
 
 // ************************************************ //
@@ -113,7 +116,7 @@ function* loadPosts(action) {
 // ************************************************ //
 function addPostAPI(data) {
   // req.body.content를 보내주기위해 content:data 입력
-  return axios.post('/post', { content: data });
+  return axios.post('/post', data);
 }
 
 function* addPost(action) {
@@ -194,8 +197,35 @@ function* addComment(action) {
 }
 
 // ************************************************ //
+// *************** IMAGE UPLOAD ******************* //
+// ************************************************ //
+function uploadImagesAPI(data) {
+  return axios.post('/post/images', data);
+}
+
+function* uploadImages(action) {
+  try {
+    const result = yield call(uploadImagesAPI, action.data);
+    yield put({
+      type: UPLOAD_IMAGE_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: UPLOAD_IMAGE_FAILURE,
+      data: err.response.data,
+    });
+  }
+}
+
+// ************************************************ //
 // ****************** WATCH *********************** //
 // ************************************************ //
+function* watchUploadImages() {
+  yield takeLatest(UPLOAD_IMAGE_REQUEST, uploadImages);
+}
+
 function* watchLikePost() {
   yield takeLatest(LIKE_POST_REQUEST, likePost);
 }
@@ -228,6 +258,7 @@ function* watchAddComment() {
 
 export default function* postSaga() {
   yield all([
+    fork(watchUploadImages),
     fork(watchLikePost),
     fork(watchUnlikePost),
     fork(watchAddPost),

@@ -22,7 +22,7 @@ const PostImages = ({ images }) => {
         <img
           // 굳이 누를 필요가 없다라는 것을 스크린리더에게 알려준다.
           role="presentation"
-          src={images[0].src}
+          src={`http://localhost:3065/${images[0].src}`}
           alt={images[0].src}
           onClick={onZoom}
         />
@@ -40,7 +40,7 @@ const PostImages = ({ images }) => {
         <img
           className={styles.image}
           role="presentation"
-          src={images[0].src}
+          src={`http://localhost:3065/${images[0].src}`}
           alt={images[0].src}
           onClick={onZoom}
         />
@@ -48,7 +48,7 @@ const PostImages = ({ images }) => {
           className={styles.image}
           role="presentation"
           width="50%"
-          src={images[1].src}
+          src={`http://localhost:3065/${images[1].src}`}
           alt={images[1].src}
           onClick={onZoom}
         />
@@ -63,7 +63,7 @@ const PostImages = ({ images }) => {
       <img
         className={styles.image}
         role="presentation"
-        src={images[0].src}
+        src={`http://localhost:3065/${images[0].src}`}
         alt={images[0].src}
         onClick={onZoom}
       />

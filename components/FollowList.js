@@ -11,17 +11,17 @@ const FollowList = ({ header, data }) => {
   const dispatch = useDispatch();
 
   // 반복문 안에서 값을 넘겨줄때는 고차함수를 사용한다.
-  const onUnfollow = (itemId) => () => {
+  const onCancel = (id) => () => {
     if (header === '팔로잉') {
       dispatch({
         type: UNFOLLOW_REQUEST,
-        data: itemId,
+        data: id,
       });
     }
 
     dispatch({
       type: REMOVE_FOLLOWER_REQUEST,
-      data: itemId,
+      data: id,
     });
   };
 
@@ -42,9 +42,7 @@ const FollowList = ({ header, data }) => {
       renderItem={(item) => (
         <List.Item className={styles.list_item}>
           <Card
-            actions={[
-              <StopOutlined key="stop" onClick={onUnfollow(item.id)} />,
-            ]}
+            actions={[<StopOutlined key="stop" onClick={onCancel(item.id)} />]}
           >
             <Card.Meta description={item.nickname} />
           </Card>
