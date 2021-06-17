@@ -1,12 +1,4 @@
-import {
-  all,
-  delay,
-  fork,
-  put,
-  takeLatest,
-  throttle,
-  call,
-} from 'redux-saga/effects';
+import { all, fork, put, takeLatest, throttle, call } from 'redux-saga/effects';
 import axios from 'axios';
 
 import {
@@ -33,6 +25,9 @@ import {
   UPLOAD_IMAGE_SUCCESS,
   UPLOAD_IMAGE_FAILURE,
   UPLOAD_IMAGE_REQUEST,
+  RETWEET_REQUEST,
+  RETWEET_SUCCESS,
+  RETWEET_FAILURE,
 } from '../reducers/types';
 
 // ************************************************ //
@@ -61,7 +56,7 @@ function* likePost(action) {
     console.error(err);
     yield put({
       type: LIKE_POST_FAILURE,
-      data: err.response.data,
+      error: err.response.data,
     });
   }
 }
@@ -84,7 +79,7 @@ function* unlikePost(action) {
   } catch (err) {
     yield put({
       type: UNLIKE_POST_FAILURE,
-      data: err.response.data,
+      error: err.response.data,
     });
   }
 }
@@ -106,7 +101,7 @@ function* loadPosts(action) {
   } catch (err) {
     yield put({
       type: LOAD_POST_FAILURE,
-      data: err.response.data,
+      error: err.response.data,
     });
   }
 }
@@ -136,7 +131,7 @@ function* addPost(action) {
   } catch (err) {
     yield put({
       type: ADD_POST_FAILURE,
-      data: err.response.data,
+      error: err.response.data,
     });
   }
 }
@@ -150,8 +145,7 @@ function removePostAPI(data) {
 
 function* removePost(action) {
   try {
-    const result = yield call(removePostAPI, action.payload);
-    yield delay(1000);
+    const result = yield call(removePostAPI, action.data);
 
     // Post가 삭제될때 User의 Posts 갯수도 -1이 되어야하므로
     // Post가 삭제될때 User의 Posts의 내용도 바꿔야한다.
@@ -166,7 +160,7 @@ function* removePost(action) {
   } catch (err) {
     yield put({
       type: REMOVE_POST_FAILURE,
-      data: err.response.data,
+      error: err.response.data,
     });
   }
 }
@@ -191,7 +185,7 @@ function* addComment(action) {
     console.error(err);
     yield put({
       type: ADD_COMMENT_FAILURE,
-      data: err.response.data,
+      error: err.response.data,
     });
   }
 }
@@ -214,7 +208,30 @@ function* uploadImages(action) {
     console.error(err);
     yield put({
       type: UPLOAD_IMAGE_FAILURE,
-      data: err.response.data,
+      error: err.response.data,
+    });
+  }
+}
+
+// ************************************************ //
+// *************** RETWEET**** ******************** //
+// ************************************************ //
+function retweetAPI(data) {
+  return axios.post(`/post/${data}/retweet`);
+}
+
+function* retweet(action) {
+  try {
+    const result = yield call(retweetAPI, action.data);
+    yield put({
+      type: RETWEET_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: RETWEET_FAILURE,
+      error: err.response.data,
     });
   }
 }
@@ -222,6 +239,10 @@ function* uploadImages(action) {
 // ************************************************ //
 // ****************** WATCH *********************** //
 // ************************************************ //
+function* watchRetweet() {
+  yield takeLatest(RETWEET_REQUEST, retweet);
+}
+
 function* watchUploadImages() {
   yield takeLatest(UPLOAD_IMAGE_REQUEST, uploadImages);
 }
@@ -258,6 +279,7 @@ function* watchAddComment() {
 
 export default function* postSaga() {
   yield all([
+    fork(watchRetweet),
     fork(watchUploadImages),
     fork(watchLikePost),
     fork(watchUnlikePost),

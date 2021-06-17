@@ -10,9 +10,15 @@ import { LOAD_POST_REQUEST, LOAD_USER_REQUEST } from '../reducers/types';
 const Home = () => {
   const dispatch = useDispatch();
   const { me } = useSelector((state) => state.user);
-  const { mainPosts, hasMorePosts, loadPostLoading } = useSelector(
-    (state) => state.post
-  );
+  // eslint-disable-next-line operator-linebreak
+  const { mainPosts, hasMorePosts, loadPostLoading, retweetError } =
+    useSelector((state) => state.post);
+
+  useEffect(() => {
+    if (retweetError) {
+      alert(retweetError);
+    }
+  }, [retweetError]);
 
   // 로그인 상태 및 포스트를 로드(유지)해준다.
   useEffect(() => {
