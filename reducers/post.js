@@ -155,8 +155,9 @@ const reducer = (state = initialState, action) =>
       case LOAD_POST_SUCCESS:
         draft.loadPostLoading = false;
         draft.loadPostDone = true;
-        draft.mainPosts = action.data.concat(draft.mainPosts);
-        draft.hasMorePosts = draft.mainPosts.length < 50;
+        // 밑으로 내리면 밑에 추가가 되어야함으로 draft.concat을 사용했다.
+        draft.mainPosts = draft.mainPosts.concat(action.data);
+        draft.hasMorePosts = action.data.length === 10;
         break;
       case LOAD_POST_FAILURE:
         draft.loadPostLoading = false;

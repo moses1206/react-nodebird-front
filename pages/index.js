@@ -45,8 +45,12 @@ const Home = () => {
       ) {
         // hasMorePosts 가 true 이면서 loading이 아닐때만 가져와라
         if (hasMorePosts && !loadPostLoading) {
+          // MainPosts의 마지막 게시글의 아이디를 lastId에 담는다.
+          // 게시글이 9개면 10개씩 불러오므로 lastId가 undefined가 된다.
+          const lastId = mainPosts[mainPosts.length - 1]?.id;
           dispatch({
             type: LOAD_POST_REQUEST,
+            lastId,
           });
         }
       }
@@ -58,7 +62,7 @@ const Home = () => {
     return () => {
       window.removeEventListener('scroll', onScroll);
     };
-  }, [hasMorePosts, loadPostLoading]);
+  }, [hasMorePosts, loadPostLoading, mainPosts]);
 
   return (
     <AppLayout>

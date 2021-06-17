@@ -87,13 +87,16 @@ function* unlikePost(action) {
 // ************************************************ //
 // ***************** LOAD POST ******************** //
 // ************************************************ //
-function loadPostsAPI(data) {
-  return axios.get('/posts', data);
+function loadPostsAPI(lastId) {
+  // get메소드는 데이터를 넣을수 없는데 넣어야할 경우는
+  // 퀴리스티링 방식 주소뒤에 ?key = 값 형식으로 넣는다.
+  // lastId가 undefined 면 0값을 넘겨준다.
+  return axios.get(`/posts?lastId=${lastId || 0}`);
 }
 
 function* loadPosts(action) {
   try {
-    const result = yield call(loadPostsAPI, action.data);
+    const result = yield call(loadPostsAPI, action.lastId);
     yield put({
       type: LOAD_POST_SUCCESS,
       data: result.data,
