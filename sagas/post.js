@@ -8,6 +8,9 @@ import {
   LOAD_POST_REQUEST,
   LOAD_POST_SUCCESS,
   LOAD_POST_FAILURE,
+  LOAD_POSTS_REQUEST,
+  LOAD_POSTS_SUCCESS,
+  LOAD_POSTS_FAILURE,
   REMOVE_POST_REQUEST,
   REMOVE_POST_SUCCESS,
   REMOVE_POST_FAILURE,
@@ -85,7 +88,30 @@ function* unlikePost(action) {
 }
 
 // ************************************************ //
-// ***************** LOAD POST ******************** //
+// ***************** LOAD POST********************* //
+// ************************************************ //
+function loadPostAPI(data) {
+  return axios.get(`/post/${data}`);
+}
+
+function* loadPost(action) {
+  try {
+    const result = yield call(loadPostAPI, action.data);
+    yield put({
+      type: LOAD_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LOAD_POST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ************************************************ //
+// ***************** LOAD POSTS******************** //
 // ************************************************ //
 function loadPostsAPI(lastId) {
   // get메소드는 데이터를 넣을수 없는데 넣어야할 경우는
@@ -98,12 +124,13 @@ function* loadPosts(action) {
   try {
     const result = yield call(loadPostsAPI, action.lastId);
     yield put({
-      type: LOAD_POST_SUCCESS,
+      type: LOAD_POSTS_SUCCESS,
       data: result.data,
     });
   } catch (err) {
+    console.error(err);
     yield put({
-      type: LOAD_POST_FAILURE,
+      type: LOAD_POSTS_FAILURE,
       error: err.response.data,
     });
   }
@@ -258,8 +285,12 @@ function* watchUnlikePost() {
   yield takeLatest(UNLIKE_POST_REQUEST, unlikePost);
 }
 
+function* watchLoadPost() {
+  yield takeLatest(LOAD_POST_REQUEST, loadPost);
+}
+
 function* watchLoadPosts() {
-  yield throttle(5000, LOAD_POST_REQUEST, loadPosts);
+  yield throttle(5000, LOAD_POSTS_REQUEST, loadPosts);
 }
 
 function* watchAddPost() {
@@ -289,6 +320,7 @@ export default function* postSaga() {
     fork(watchAddPost),
     fork(watchRemovePost),
     fork(watchAddComment),
+    fork(watchLoadPost),
     fork(watchLoadPosts),
   ]);
 }

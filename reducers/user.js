@@ -32,9 +32,15 @@ import {
   REMOVE_FOLLOWER_REQUEST,
   REMOVE_FOLLOWER_SUCCESS,
   REMOVE_FOLLOWER_FAILURE,
+  LOAD_MY_INFO_REQUEST,
+  LOAD_MY_INFO_SUCCESS,
+  LOAD_MY_INFO_FAILURE,
 } from './types';
 
 export const initialState = {
+  loadMyInfoLoading: false, // 서버사이드렌더링
+  loadMyInfoDone: false,
+  loadMyInfoError: false,
   loadUserLoading: false, // 유저정보 가져오는중
   loadUserDone: false,
   loadUserError: false,
@@ -66,8 +72,7 @@ export const initialState = {
   removeFollowerDone: false,
   removeFollowerError: null,
   me: null,
-  signUpData: {},
-  loginData: {},
+  userInfo: null, // 다른 유저 정보
 };
 
 export const loginRequestAction = (data) => ({
@@ -126,6 +131,20 @@ const reducer = (state = initialState, action) =>
         draft.loadFollowersLoading = false;
         draft.loadFollowersError = action.error;
         break;
+      case LOAD_MY_INFO_REQUEST:
+        draft.loadMyInfoLoading = true;
+        draft.loadMyInfoError = null;
+        draft.loaMyInforDone = false;
+        break;
+      case LOAD_MY_INFO_SUCCESS:
+        draft.loadMyInfoLoading = false;
+        draft.me = action.data;
+        draft.loadUserDone = true;
+        break;
+      case LOAD_MY_INFO_FAILURE:
+        draft.loadMyInfoLoading = false;
+        draft.loadMyInfoError = action.error;
+        break;
       case LOAD_USER_REQUEST:
         draft.loadUserLoading = true;
         draft.loadUserError = null;
@@ -133,7 +152,7 @@ const reducer = (state = initialState, action) =>
         break;
       case LOAD_USER_SUCCESS:
         draft.loadUserLoading = false;
-        draft.me = action.data;
+        draft.userInfo = action.data;
         draft.loadUserDone = true;
         break;
       case LOAD_USER_FAILURE:

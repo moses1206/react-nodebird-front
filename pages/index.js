@@ -1,17 +1,20 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Head from 'next/head';
+import { END } from 'redux-saga';
+import axios from 'axios';
 import AppLayout from '../components/AppLayout';
 
 import PostForm from '../components/PostForm';
 import PostCard from '../components/PostCard';
-import { LOAD_POST_REQUEST, LOAD_USER_REQUEST } from '../reducers/types';
+import { LOAD_MY_INFO_REQUEST, LOAD_POSTS_REQUEST } from '../reducers/types';
+import wrapper from '../store/configureStore';
 
 const Home = () => {
   const dispatch = useDispatch();
   const { me } = useSelector((state) => state.user);
   // eslint-disable-next-line operator-linebreak
-  const { mainPosts, hasMorePosts, loadPostLoading, retweetError } =
+  const { mainPosts, hasMorePosts, loadPostsLoading, retweetError } =
     useSelector((state) => state.post);
 
   useEffect(() => {
@@ -19,18 +22,6 @@ const Home = () => {
       alert(retweetError);
     }
   }, [retweetError]);
-
-  // 로그인 상태 및 포스트를 로드(유지)해준다.
-  useEffect(() => {
-    dispatch({
-      type: LOAD_USER_REQUEST,
-    });
-    dispatch({
-      type: LOAD_POST_REQUEST,
-      // 처음에 모든 포스트를 불러오는것이 아니다
-      // 스크롤을 할때마다 정해진 숫자를 불러온다.
-    });
-  }, []);
 
   // 스크롤이 어느정도 내려오면 데이터를 불러오는 기능
   // 밑에서 300px정도 남았을때 데이터를 불러오게 하고싶다.!
@@ -41,15 +32,15 @@ const Home = () => {
         // scrollY + clientHeight = scrollHeight -300 ==> 끝에서 300px 남은 지점에서 LOAD POST REQUEST를 실행
         // eslint-disable-next-line operator-linebreak
         window.scrollY + document.documentElement.clientHeight >
-        document.documentElement.scrollHeight - 500
+        document.documentElement.scrollHeight - 300
       ) {
         // hasMorePosts 가 true 이면서 loading이 아닐때만 가져와라
-        if (hasMorePosts && !loadPostLoading) {
+        if (hasMorePosts && !loadPostsLoading) {
           // MainPosts의 마지막 게시글의 아이디를 lastId에 담는다.
           // 게시글이 9개면 10개씩 불러오므로 lastId가 undefined가 된다.
           const lastId = mainPosts[mainPosts.length - 1]?.id;
           dispatch({
-            type: LOAD_POST_REQUEST,
+            type: LOAD_POSTS_REQUEST,
             lastId,
           });
         }
@@ -62,7 +53,7 @@ const Home = () => {
     return () => {
       window.removeEventListener('scroll', onScroll);
     };
-  }, [hasMorePosts, loadPostLoading, mainPosts]);
+  }, [hasMorePosts, loadPostsLoading, mainPosts]);
 
   return (
     <AppLayout>
@@ -79,4 +70,29 @@ const Home = () => {
     </AppLayout>
   );
 };
+
+// Server Side Rendering
+// Home보다 먼저 실행된다.
+// getServerSideProps가 실행되면 store의 변화가 일어나고 Case HYDRATE가 실행된다.
+export const getServerSideProps = wrapper.getServerSideProps(
+  async (context) => {
+    console.log('getServerSideProps Start');
+    const cookie = context.req ? context.req.headers.cookie : '';
+    axios.defaults.headers.Cookie = '';
+    // 쿠키 공유를 막기위해
+    if (context.req && cookie) {
+      axios.defaults.headers.Cookie = cookie;
+    }
+    context.store.dispatch({
+      type: LOAD_MY_INFO_REQUEST,
+    });
+    context.store.dispatch({
+      type: LOAD_POSTS_REQUEST,
+    });
+    context.store.dispatch(END);
+    console.log('getServerSideProps End!');
+    await context.store.sagaTask.toPromise();
+  }
+);
+
 export default Home;

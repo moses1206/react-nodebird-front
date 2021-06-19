@@ -3,11 +3,20 @@ import Head from 'next/head';
 import Router from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Form, Input, Checkbox, Button } from 'antd';
-import AppLayout from '../components/AppLayout';
+
+// Server Side Rendering
+import { END } from 'redux-saga';
+import axios from 'axios';
+import wrapper from '../store/configureStore';
 
 import useInput from '../hooks/useInput';
+import AppLayout from '../components/AppLayout';
 import styles from '../styles/SignUp.module.css';
-import { SIGN_UP_REQUEST } from '../reducers/types';
+import {
+  LOAD_MY_INFO_REQUEST,
+  LOAD_POSTS_REQUEST,
+  SIGN_UP_REQUEST,
+} from '../reducers/types';
 
 const Signup = () => {
   const dispatch = useDispatch();
@@ -137,5 +146,27 @@ const Signup = () => {
     </AppLayout>
   );
 };
+
+// Server Side Rendering
+export const getServerSideProps = wrapper.getServerSideProps(
+  async (context) => {
+    console.log('getServerSideProps Start');
+    const cookie = context.req ? context.req.headers.cookie : '';
+    axios.defaults.headers.Cookie = '';
+    // 쿠키 공유를 막기위해
+    if (context.req && cookie) {
+      axios.defaults.headers.Cookie = cookie;
+    }
+    context.store.dispatch({
+      type: LOAD_MY_INFO_REQUEST,
+    });
+    context.store.dispatch({
+      type: LOAD_POSTS_REQUEST,
+    });
+    context.store.dispatch(END);
+    console.log('getServerSideProps End!');
+    await context.store.sagaTask.toPromise();
+  }
+);
 
 export default Signup;
