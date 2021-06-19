@@ -33,6 +33,7 @@ import {
 
 export const initialState = {
   mainPosts: [],
+  singlePost: null,
   imagePaths: [],
   // 처음에는 무조건 가져와야해서 haseMorePosts: True 롤 하고
   // 데이터가 40개 있는데 10개씩불러오다가 이제 불러올것이 없다면 false로 된다.
