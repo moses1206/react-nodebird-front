@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Link from 'next/link';
 import { Menu, Input, Row, Col } from 'antd';
 import { createGlobalStyle } from 'styled-components';
 import { useSelector } from 'react-redux';
+import Router from 'next/router';
+import useInput from '../hooks/useInput';
 
 import UserProfile from './UserProfile';
 import LoginForm from './LoginForm';
@@ -27,7 +29,12 @@ const Global = createGlobalStyle`
 `;
 
 const AppLayout = ({ children }) => {
+  const [searchInput, onChangeSearchInput] = useInput('');
   const { me } = useSelector((state) => state.user);
+
+  const onSearch = useCallback(() => {
+    Router.push(`/hashtag/${searchInput}`);
+  }, [searchInput]);
 
   return (
     <div>
@@ -44,7 +51,13 @@ const AppLayout = ({ children }) => {
           </Link>
         </Menu.Item>
         <Menu.Item key="3">
-          <Input.Search className={styles.vertialMiddle} enterButton />
+          <Input.Search
+            className={styles.vertialMiddle}
+            enterButton
+            value={searchInput}
+            onChange={onChangeSearchInput}
+            onSearch={onSearch}
+          />
         </Menu.Item>
         <Menu.Item key="4">
           <Link href="/signup">

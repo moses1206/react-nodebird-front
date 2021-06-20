@@ -44,19 +44,19 @@ const Profile = () => {
 
   const loadMoreFollowings = useCallback(() => {
     setFollowingsLimit((prev) => prev + 3);
-  }, [followingsLimit]);
+  }, []);
 
   const loadMoreFollowers = useCallback(() => {
     setFollowersLimit((prev) => prev + 3);
-  }, [followingsLimit]);
+  }, []);
 
   if (!me) {
-    return '내 정보 로딩중!!';
+    return '내 정보 로딩중...';
   }
 
   if (followerError || followingError) {
     console.error(followerError || followingError);
-    return '팔로잉/팔로워 로딩중 에러가 발생했습니다.!!';
+    return <div>팔로잉/팔로워 로딩 중 에러가 발생합니다.</div>;
   }
 
   return (
@@ -68,13 +68,13 @@ const Profile = () => {
         <NicknameEditForm />
         <FollowList
           header="팔로잉"
-          data={followingsData}
+          data={followingsData || []}
           onClickMore={loadMoreFollowings}
           loading={!followingsData && !followingError}
         />
         <FollowList
           header="팔로워"
-          data={followersData}
+          data={followersData || []}
           onClickMore={loadMoreFollowers}
           loading={!followersData && !followerError}
         />
@@ -86,20 +86,18 @@ const Profile = () => {
 // Server Side Rendering
 export const getServerSideProps = wrapper.getServerSideProps(
   async (context) => {
-    console.log('getServerSideProps Start');
+    console.log('getServerSideProps start');
     console.log(context.req.headers);
     const cookie = context.req ? context.req.headers.cookie : '';
     axios.defaults.headers.Cookie = '';
     if (context.req && cookie) {
       axios.defaults.headers.Cookie = cookie;
     }
-
     context.store.dispatch({
       type: LOAD_MY_INFO_REQUEST,
     });
-
     context.store.dispatch(END);
-    console.log('getServerSideProps End!');
+    console.log('getServerSideProps end');
     await context.store.sagaTask.toPromise();
   }
 );
