@@ -144,6 +144,29 @@ function* loadPosts(action) {
 }
 
 // ************************************************ //
+// *********** LOAD USER POSTS********************* //
+// ************************************************ //
+function loadUserPostsAPI(data, lastId) {
+  return axios.get(`/user/${data}/posts?lastId=${lastId || 0}`);
+}
+
+function* loadUserPosts(action) {
+  try {
+    const result = yield call(loadUserPostsAPI, action.data, action.lastId);
+    yield put({
+      type: LOAD_USER_POSTS_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LOAD_USER_POSTS_FAILURE,
+      data: err.response.data,
+    });
+  }
+}
+
+// ************************************************ //
 // ****************** ADD POST ******************** //
 // ************************************************ //
 function addPostAPI(data) {
@@ -276,34 +299,12 @@ function* retweet(action) {
 }
 
 // ************************************************ //
-// *********** LOAD USER POSTS********************* //
-// ************************************************ //
-function loadUserPostsAPI(data, lastId) {
-  return axios.get(`/user/${data}/posts?lastId=${lastId || 0}`);
-}
-
-function* loadUserPosts(action) {
-  try {
-    const result = yield call(loadUserPostsAPI, action.data, action.lastId);
-    yield put({
-      type: LOAD_USER_POSTS_SUCCESS,
-      data: result.data,
-    });
-  } catch (err) {
-    console.error(err);
-    yield put({
-      type: LOAD_USER_POSTS_FAILURE,
-      data: err.response.data,
-    });
-  }
-}
-
-// ************************************************ //
 // ********* LOAD HASHTAG POSTS******************** //
 // ************************************************ //
 function loadHashTagPostsAPI(data, lastId) {
   return axios.get(
-    // 한글이나 특수문자를 사용할때 encodeURIComponent를 사용하여 에러를 막는다.
+    // 한글이나 특수문자를 주소창에 넣어서 보낼수 없지만
+    // encodeURIComponent를 통해 데이터를 변환해서 보낼수 있다.
     `/hashtag/${encodeURIComponent(data)}?lastId=${lastId || 0}`
   );
 }
