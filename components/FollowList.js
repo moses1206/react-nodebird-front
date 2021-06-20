@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import styles from '../styles/FollowList.module.css';
 import { REMOVE_FOLLOWER_REQUEST, UNFOLLOW_REQUEST } from '../reducers/types';
 
-const FollowList = ({ header, data }) => {
+const FollowList = ({ header, data, onClickMore, loading }) => {
   const dispatch = useDispatch();
 
   // 반복문 안에서 값을 넘겨줄때는 고차함수를 사용한다.
@@ -34,7 +34,9 @@ const FollowList = ({ header, data }) => {
       loadMore={
         // eslint-disable-next-line react/jsx-wrap-multilines
         <div className={styles.loadmore}>
-          <Button>더보기</Button>
+          <Button onClick={onClickMore} loading={loading}>
+            더보기
+          </Button>
         </div>
       }
       bordered
@@ -55,6 +57,8 @@ const FollowList = ({ header, data }) => {
 FollowList.propTypes = {
   header: PropTypes.string.isRequired,
   data: PropTypes.array.isRequired,
+  onClickMore: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
 };
 
 export default FollowList;
