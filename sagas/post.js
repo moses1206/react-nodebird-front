@@ -31,6 +31,12 @@ import {
   RETWEET_REQUEST,
   RETWEET_SUCCESS,
   RETWEET_FAILURE,
+  LOAD_USER_POSTS_REQUEST,
+  LOAD_HASHTAG_POSTS_REQUEST,
+  LOAD_HASHTAG_POSTS_SUCCESS,
+  LOAD_HASHTAG_POSTS_FAILURE,
+  LOAD_USER_POSTS_SUCCESS,
+  LOAD_USER_POSTS_FAILURE,
 } from '../reducers/types';
 
 // ************************************************ //
@@ -80,6 +86,7 @@ function* unlikePost(action) {
       data: result.data,
     });
   } catch (err) {
+    console.error(err);
     yield put({
       type: UNLIKE_POST_FAILURE,
       error: err.response.data,
@@ -159,6 +166,7 @@ function* addPost(action) {
       data: result.data.id,
     });
   } catch (err) {
+    console.error(err);
     yield put({
       type: ADD_POST_FAILURE,
       error: err.response.data,
@@ -188,6 +196,7 @@ function* removePost(action) {
       data: action.data,
     });
   } catch (err) {
+    console.error(err);
     yield put({
       type: REMOVE_POST_FAILURE,
       error: err.response.data,
@@ -267,6 +276,55 @@ function* retweet(action) {
 }
 
 // ************************************************ //
+// *********** LOAD USER POSTS********************* //
+// ************************************************ //
+function loadUserPostsAPI(data, lastId) {
+  return axios.get(`/user/${data}/posts?lastId=${lastId || 0}`);
+}
+
+function* loadUserPosts(action) {
+  try {
+    const result = yield call(loadUserPostsAPI, action.data, action.lastId);
+    yield put({
+      type: LOAD_USER_POSTS_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LOAD_USER_POSTS_FAILURE,
+      data: err.response.data,
+    });
+  }
+}
+
+// ************************************************ //
+// ********* LOAD HASHTAG POSTS******************** //
+// ************************************************ //
+function loadHashTagPostsAPI(data, lastId) {
+  return axios.get(
+    // 한글이나 특수문자를 사용할때 encodeURIComponent를 사용하여 에러를 막는다.
+    `/hashtag/${encodeURIComponent(data)}?lastId=${lastId || 0}`
+  );
+}
+
+function* loadHashTagPosts(action) {
+  try {
+    const result = yield call(loadHashTagPostsAPI, action.data, action.lastId);
+    yield put({
+      type: LOAD_HASHTAG_POSTS_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LOAD_HASHTAG_POSTS_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// ************************************************ //
 // ****************** WATCH *********************** //
 // ************************************************ //
 function* watchRetweet() {
@@ -303,6 +361,16 @@ function* watchRemovePost() {
   yield takeLatest(REMOVE_POST_REQUEST, removePost);
 }
 
+function* watchLoadUserPosts() {
+  // 2초동안 여러번 눌러도 1번만 서버에 요청을 보낸다.
+  yield throttle(5000, LOAD_USER_POSTS_REQUEST, loadUserPosts);
+}
+
+function* watchLoadHashTagPosts() {
+  // 2초동안 여러번 눌러도 1번만 서버에 요청을 보낸다.
+  yield throttle(5000, LOAD_HASHTAG_POSTS_REQUEST, loadHashTagPosts);
+}
+
 function* watchAddComment() {
   try {
     yield takeLatest(ADD_COMMENT_REQUEST, addComment);
@@ -322,5 +390,7 @@ export default function* postSaga() {
     fork(watchAddComment),
     fork(watchLoadPost),
     fork(watchLoadPosts),
+    fork(watchLoadUserPosts),
+    fork(watchLoadHashTagPosts),
   ]);
 }
