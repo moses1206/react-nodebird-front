@@ -10,19 +10,22 @@ import {
   MessageOutlined,
   EllipsisOutlined,
 } from '@ant-design/icons';
-
 import PropTypes from 'prop-types';
+import moment from 'moment';
 
 import PostImages from './PostImages';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
+import FollowButton from './FollowButton';
 import {
   REMOVE_POST_REQUEST,
   LIKE_POST_REQUEST,
   UNLIKE_POST_REQUEST,
   RETWEET_REQUEST,
 } from '../reducers/types';
-import FollowButton from './FollowButton';
+
+// 모멘트를 한글로 바꾸어준다.
+moment.locale('ko');
 
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();
@@ -150,6 +153,9 @@ const PostCard = ({ post }) => {
               )
             }
           >
+            <div style={{ float: 'right' }}>
+              {moment(post.createdAt).format('YYYY.MM.DD , a h:mm:ss')}
+            </div>
             <Card.Meta
               avatar={
                 // eslint-disable-next-line react/jsx-wrap-multilines
@@ -164,18 +170,23 @@ const PostCard = ({ post }) => {
             />
           </Card>
         ) : (
-          <Card.Meta
-            avatar={
-              // eslint-disable-next-line react/jsx-wrap-multilines
-              <Link href={`/user/${post.User.id}`}>
-                <a>
-                  <Avatar>{post.User.nickname[0]}</Avatar>
-                </a>
-              </Link>
-            }
-            title={post.User.nickname}
-            description={<PostCardContent postData={post.content} />}
-          />
+          <>
+            <div style={{ float: 'right' }}>
+              {moment(post.createdAt).format('YYYY.MM.DD , a h:mm:ss')}
+            </div>
+            <Card.Meta
+              avatar={
+                // eslint-disable-next-line react/jsx-wrap-multilines
+                <Link href={`/user/${post.User.id}`}>
+                  <a>
+                    <Avatar>{post.User.nickname[0]}</Avatar>
+                  </a>
+                </Link>
+              }
+              title={post.User.nickname}
+              description={<PostCardContent postData={post.content} />}
+            />
+          </>
         )}
       </Card>
       {commentFormOpened && (

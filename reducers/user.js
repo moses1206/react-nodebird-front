@@ -1,4 +1,4 @@
-import produce from 'immer';
+import produce from '../util/produce';
 import {
   LOG_IN_REQUEST,
   LOG_IN_SUCCESS,
